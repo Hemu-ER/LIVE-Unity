@@ -9,6 +9,8 @@ namespace LIVE.Prototype
         private const float Spacing = 1.6f;
         private static readonly Color TeamA = new Color(0.22f, 0.72f, 1f);
         private static readonly Color TeamB = new Color(1f, 0.43f, 0.29f);
+        [SerializeField] private PrototypeCombatStats testStats = new PrototypeCombatStats();
+        public PrototypeCombatController Combat { get; private set; }
         private Sprite square;
         private Texture2D texture;
         private Camera view;
@@ -35,6 +37,8 @@ namespace LIVE.Prototype
 
             MakeSprite("Faction divider", transform, Vector3.zero, new Vector2(0.018f, 4.76f), new Color(0.6f, 0.7f, 0.8f), 1);
             Units = new[] { CreateUnit("A", 1, TeamA), CreateUnit("B", 4, TeamB) };
+            Combat = gameObject.AddComponent<PrototypeCombatController>();
+            Combat.Initialize(Rows, Columns, Units, (row, column) => transform.TransformPoint(Position(row, column)));
 
             view = Camera.main;
             if (view == null)
@@ -66,15 +70,17 @@ namespace LIVE.Prototype
             var root = new GameObject($"Test Unit {faction}");
             root.transform.SetParent(transform, false);
             root.transform.localPosition = Position(1, column);
+            var character = new GameObject("Character").transform;
+            character.SetParent(root.transform, false);
             // A small geometric character silhouette: head, torso and two feet.
-            MakeSprite("Head", root.transform, new Vector3(0, 0.27f, 0), new Vector2(0.32f, 0.32f), Color.Lerp(color, Color.white, 0.25f), 2);
-            MakeSprite("Body", root.transform, new Vector3(0, -0.08f, 0), new Vector2(0.48f, 0.34f), color, 2);
-            MakeSprite("Left foot", root.transform, new Vector3(-0.14f, -0.33f, 0), new Vector2(0.18f, 0.16f), color, 2);
-            MakeSprite("Right foot", root.transform, new Vector3(0.14f, -0.33f, 0), new Vector2(0.18f, 0.16f), color, 2);
+            MakeSprite("Head", character, new Vector3(0, 0.27f, 0), new Vector2(0.32f, 0.32f), Color.Lerp(color, Color.white, 0.25f), 2);
+            MakeSprite("Body", character, new Vector3(0, -0.08f, 0), new Vector2(0.48f, 0.34f), color, 2);
+            MakeSprite("Left foot", character, new Vector3(-0.14f, -0.33f, 0), new Vector2(0.18f, 0.16f), color, 2);
+            MakeSprite("Right foot", character, new Vector3(0.14f, -0.33f, 0), new Vector2(0.18f, 0.16f), color, 2);
             MakeSprite("Health background", root.transform, new Vector3(0, 0.62f, 0), new Vector2(1.04f, 0.09f), new Color(0.02f, 0.03f, 0.04f), 3);
             var fill = MakeSprite("Health fill", root.transform, new Vector3(0, 0.62f, -0.01f), new Vector2(1f, 0.05f), new Color(0.35f, 0.95f, 0.5f), 4);
             var unit = root.AddComponent<PrototypeUnit>();
-            unit.Initialize(faction, fill.transform);
+            unit.Initialize(faction, 1, column, testStats, fill.transform, character);
             return unit;
         }
 
