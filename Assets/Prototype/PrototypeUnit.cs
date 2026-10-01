@@ -7,16 +7,18 @@ namespace LIVE.Prototype
         [SerializeField, Min(1)] private int maxHealth = 100;
         [SerializeField, Min(0)] private int currentHealth = 100;
         private Transform healthFill;
-        private TextMesh healthLabel;
+        private Vector3 fullHealthScale;
+        private Vector3 fullHealthPosition;
         public string Faction { get; private set; }
         public int MaxHealth => maxHealth;
         public int CurrentHealth => currentHealth;
 
-        public void Initialize(string faction, Transform fill, TextMesh label)
+        public void Initialize(string faction, Transform fill)
         {
             Faction = faction;
             healthFill = fill;
-            healthLabel = label;
+            fullHealthScale = fill.localScale;
+            fullHealthPosition = fill.localPosition;
             RefreshHealth();
         }
 
@@ -41,11 +43,10 @@ namespace LIVE.Prototype
 
         private void RefreshHealth()
         {
-            if (healthFill == null || healthLabel == null) return;
+            if (healthFill == null) return;
             float ratio = (float)currentHealth / maxHealth;
-            healthFill.localScale = new Vector3(ratio, 0.085f, 1);
-            healthFill.localPosition = new Vector3((ratio - 1) * 0.5f, 0.53f, -0.01f);
-            healthLabel.text = $"{currentHealth} / {maxHealth}";
+            healthFill.localScale = new Vector3(fullHealthScale.x * ratio, fullHealthScale.y, fullHealthScale.z);
+            healthFill.localPosition = fullHealthPosition + Vector3.right * ((ratio - 1) * fullHealthScale.x * 0.5f);
         }
     }
 }

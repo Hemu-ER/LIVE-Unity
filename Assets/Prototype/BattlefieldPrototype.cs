@@ -29,16 +29,11 @@ namespace LIVE.Prototype
             for (int column = 0; column < Columns; column++)
             {
                 Color team = column < 3 ? TeamA : TeamB;
-                var tile = MakeSprite($"Tile {row + 1},{column + 1} / {(column < 3 ? "A" : "B")}", Tiles,
-                    Position(row, column), new Vector2(1.48f, 1.48f), Color.Lerp(new Color(0.07f, 0.1f, 0.17f), team, 0.28f), 0);
-                MakeText($"{row + 1},{column + 1}", tile.transform, new Vector3(-0.36f, -0.36f, -0.1f), 0.1f, new Color(0.7f, 0.8f, 0.9f));
+                MakeSprite($"Tile {row + 1},{column + 1} / {(column < 3 ? "A" : "B")}", Tiles,
+                    Position(row, column), new Vector2(1.56f, 1.56f), Color.Lerp(new Color(0.07f, 0.1f, 0.17f), team, 0.28f), 0);
             }
 
-            MakeSprite("Faction divider", transform, Vector3.zero, new Vector2(0.035f, 4.72f), new Color(0.6f, 0.7f, 0.8f), 1);
-            MakeText("A  /  BLUE", transform, new Vector3(-2.4f, 2.9f, 0), 0.25f, TeamA);
-            MakeText("B  /  RED", transform, new Vector3(2.4f, 2.9f, 0), 0.25f, TeamB);
-            MakeText("LIVE  |  3 x 6 BATTLEFIELD", transform, new Vector3(0, 3.8f, 0), 0.23f, Color.white);
-            MakeText("TEST UNITS  /  A VS B", transform, new Vector3(0, -3.05f, 0), 0.16f, new Color(0.7f, 0.8f, 0.9f));
+            MakeSprite("Faction divider", transform, Vector3.zero, new Vector2(0.018f, 4.76f), new Color(0.6f, 0.7f, 0.8f), 1);
             Units = new[] { CreateUnit("A", 1, TeamA), CreateUnit("B", 4, TeamB) };
 
             view = Camera.main;
@@ -49,7 +44,7 @@ namespace LIVE.Prototype
                 view.tag = "MainCamera";
             }
             view.orthographic = true;
-            view.transform.SetPositionAndRotation(new Vector3(0, 0.35f, -10), Quaternion.identity);
+            view.transform.SetPositionAndRotation(new Vector3(0, 0, -10), Quaternion.identity);
             view.clearFlags = CameraClearFlags.SolidColor;
             view.backgroundColor = new Color(0.035f, 0.05f, 0.085f);
             FitCamera();
@@ -60,7 +55,7 @@ namespace LIVE.Prototype
         private void FitCamera()
         {
             if (view != null)
-                view.orthographicSize = Mathf.Max(4.3f, 5.4f / Mathf.Max(0.1f, view.aspect));
+                view.orthographicSize = Mathf.Max(3.1f, 5.4f / Mathf.Max(0.1f, view.aspect));
         }
 
         public static Vector3 Position(int row, int column) =>
@@ -71,13 +66,15 @@ namespace LIVE.Prototype
             var root = new GameObject($"Test Unit {faction}");
             root.transform.SetParent(transform, false);
             root.transform.localPosition = Position(1, column);
-            MakeSprite("Body", root.transform, Vector3.zero, new Vector2(0.65f, 0.65f), color, 2);
-            MakeText(faction, root.transform, new Vector3(0, 0, -0.1f), 0.24f, Color.white);
-            MakeSprite("Health background", root.transform, new Vector3(0, 0.53f, 0), new Vector2(1.05f, 0.13f), new Color(0.02f, 0.03f, 0.04f), 3);
-            var fill = MakeSprite("Health fill", root.transform, new Vector3(0, 0.53f, -0.01f), new Vector2(1f, 0.085f), new Color(0.35f, 0.95f, 0.5f), 4);
-            var label = MakeText("", root.transform, new Vector3(0, -0.53f, -0.1f), 0.14f, Color.white);
+            // A small geometric character silhouette: head, torso and two feet.
+            MakeSprite("Head", root.transform, new Vector3(0, 0.27f, 0), new Vector2(0.32f, 0.32f), Color.Lerp(color, Color.white, 0.25f), 2);
+            MakeSprite("Body", root.transform, new Vector3(0, -0.08f, 0), new Vector2(0.48f, 0.34f), color, 2);
+            MakeSprite("Left foot", root.transform, new Vector3(-0.14f, -0.33f, 0), new Vector2(0.18f, 0.16f), color, 2);
+            MakeSprite("Right foot", root.transform, new Vector3(0.14f, -0.33f, 0), new Vector2(0.18f, 0.16f), color, 2);
+            MakeSprite("Health background", root.transform, new Vector3(0, 0.62f, 0), new Vector2(1.04f, 0.09f), new Color(0.02f, 0.03f, 0.04f), 3);
+            var fill = MakeSprite("Health fill", root.transform, new Vector3(0, 0.62f, -0.01f), new Vector2(1f, 0.05f), new Color(0.35f, 0.95f, 0.5f), 4);
             var unit = root.AddComponent<PrototypeUnit>();
-            unit.Initialize(faction, fill.transform, label);
+            unit.Initialize(faction, fill.transform);
             return unit;
         }
 
@@ -92,24 +89,6 @@ namespace LIVE.Prototype
             renderer.color = color;
             renderer.sortingOrder = order;
             return renderer;
-        }
-
-        private static TextMesh MakeText(string text, Transform parent, Vector3 position, float size, Color color)
-        {
-            var obj = new GameObject("Label");
-            obj.transform.SetParent(parent, false);
-            obj.transform.localPosition = position;
-            var label = obj.AddComponent<TextMesh>();
-            label.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-            label.GetComponent<MeshRenderer>().sharedMaterial = label.font.material;
-            label.text = text;
-            label.fontSize = 64;
-            label.characterSize = size;
-            label.anchor = TextAnchor.MiddleCenter;
-            label.alignment = TextAlignment.Center;
-            label.color = color;
-            label.GetComponent<MeshRenderer>().sortingOrder = 10;
-            return label;
         }
 
         private void OnDestroy()
