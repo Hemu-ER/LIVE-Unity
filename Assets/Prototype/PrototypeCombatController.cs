@@ -12,6 +12,11 @@ namespace LIVE.Prototype
         private readonly List<PrototypeUnit> units = new List<PrototypeUnit>();
         private Func<int, int, Vector3> position;
         private float readyElapsed;
+        private readonly List<PrototypeUnit> actionOrder = new List<PrototypeUnit>();
+        private float quietSeconds;
+        public int StallCount { get; private set; }
+        public string LastStallDiagnostic { get; private set; }
+        public float StallThresholdSeconds { get; set; } = 5f;
         private int randomSeed;
         public PrototypeRandom Random { get; private set; }
         public event Action<PrototypeCombatEvent> EventRaised;
@@ -32,6 +37,10 @@ namespace LIVE.Prototype
                 unit.Bind(this, units.Count);
                 units.Add(unit);
             }
+            actionOrder.Clear();
+            actionOrder.AddRange(units);
+            actionOrder.Sort((a, b) => StringComparer.Ordinal.Compare(a.CombatId, b.CombatId));
+            for (int i = 0; i < actionOrder.Count; i++) actionOrder[i].Bind(this, i);
             ResetBattle();
         }
 
@@ -58,11 +67,22 @@ namespace LIVE.Prototype
                 return;
             }
             CheckOutcome();
-            // Stable registration order resolves simultaneous movement/attack conflicts.
-            foreach (var unit in units)
+            // Battle-stable identity order, independent of registration/MonoBehaviour update order.
+            quietSeconds += seconds;
+            foreach (var unit in actionOrder)
             {
                 if (State != PrototypeCombatState.Fighting) break;
                 if (unit != null && unit.IsAlive) unit.Tick(seconds);
+            }
+            if (State == PrototypeCombatState.Fighting && quietSeconds >= Mathf.Max(0.1f, StallThresholdSeconds))
+            {
+                StallCount++;
+                var diagnostic = new System.Text.StringBuilder($"LIVE combat stall: {quietSeconds:F2}s without meaningful events; seed={randomSeed}");
+                foreach (var unit in actionOrder)
+                    if (unit != null && unit.IsAlive) diagnostic.Append($" | {unit.CombatId} cell={unit.Cell} state={unit.ActionState} target={unit.Target?.CombatId} HP={unit.CurrentHealth} shield={unit.Shield}");
+                LastStallDiagnostic = diagnostic.ToString();
+                Debug.LogWarning(LastStallDiagnostic, this);
+                quietSeconds = 0;
             }
         }
 
@@ -82,6 +102,7 @@ namespace LIVE.Prototype
             State = PrototypeCombatState.Ready;
             Winner = null;
             readyElapsed = 0;
+            quietSeconds = 0; StallCount = 0; LastStallDiagnostic = null;
             Random = new PrototypeRandom(randomSeed);
             Grid.Clear();
             foreach (var unit in units)
@@ -93,12 +114,15 @@ namespace LIVE.Prototype
             }
         }
 
+        public bool IsValidEnemy(PrototypeUnit seeker, PrototypeUnit candidate) =>
+            candidate != null && candidate.IsAlive && candidate.Faction != seeker.Faction && units.Contains(candidate);
+
         public PrototypeUnit FindNearestEnemy(PrototypeUnit seeker)
         {
             PrototypeUnit best = null;
             foreach (var candidate in units)
             {
-                if (candidate == null || !candidate.IsAlive || candidate.Faction == seeker.Faction) continue;
+                if (!IsValidEnemy(seeker, candidate)) continue;
                 if (best == null || CompareTargets(seeker, candidate, best) < 0) best = candidate;
             }
             return best;
@@ -108,10 +132,8 @@ namespace LIVE.Prototype
         {
             int comparison = PrototypeCombatGrid.Distance(seeker.Cell, a.Cell).CompareTo(PrototypeCombatGrid.Distance(seeker.Cell, b.Cell));
             if (comparison != 0) return comparison;
-            comparison = a.Row.CompareTo(b.Row);
-            if (comparison != 0) return comparison;
-            comparison = a.Column.CompareTo(b.Column);
-            return comparison != 0 ? comparison : a.SpawnOrder.CompareTo(b.SpawnOrder);
+            comparison = a.CurrentHealth.CompareTo(b.CurrentHealth);
+            return comparison != 0 ? comparison : StringComparer.Ordinal.Compare(a.CombatId, b.CombatId);
         }
 
         internal void NotifyDeath(PrototypeUnit dead)
@@ -153,6 +175,10 @@ namespace LIVE.Prototype
 
         internal void Publish(PrototypeCombatEvent message)
         {
+            if (message.Type == PrototypeCombatEventType.UnitMoved || message.Type == PrototypeCombatEventType.SkillCast ||
+                message.Type == PrototypeCombatEventType.UnitDied ||
+                ((message.Type == PrototypeCombatEventType.DamageDealt || message.Type == PrototypeCombatEventType.HealApplied ||
+                  message.Type == PrototypeCombatEventType.ShieldApplied) && message.Amount > 0)) quietSeconds = 0;
             // Observers cannot cancel rules; a broken view must not interrupt simulation.
             if (EventRaised == null) return;
             foreach (Action<PrototypeCombatEvent> observer in EventRaised.GetInvocationList())

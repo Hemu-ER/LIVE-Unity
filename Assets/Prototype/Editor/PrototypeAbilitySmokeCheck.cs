@@ -77,7 +77,7 @@ namespace LIVE.Prototype.Editor
                 Check(f.A.SkillGauge == 80, "Custom gauge cap");
                 int attacks = f.A.Statistics.BasicAttackCount, health = f.B.CurrentHealth;
                 var cell = f.A.Cell;
-                f.Step();
+                for (int i = 0; i < 7 && f.A.ActionState != PrototypeActionState.Casting; i++) f.Step();
                 Check(f.A.ActionState == PrototypeActionState.Casting && f.A.SkillGauge == 0, "Gauge cast priority and consume");
                 for (int i = 0; i < 4; i++) f.Step();
                 Check(f.A.Cell == cell && !f.A.IsMoving && f.A.Statistics.BasicAttackCount == attacks && f.B.CurrentHealth == health, "Casting blocks movement/basic and waits for release");
@@ -151,7 +151,8 @@ namespace LIVE.Prototype.Editor
             {
                 f.A.ConfigureAbilities(data.Units[4].Abilities);
                 f.Add("B", 0, 5);
-                f.Start(); f.B.SetHealth(1); f.Step(); f.Step();
+                f.Start(); f.B.SetHealth(1); f.Step();
+                for (int i = 0; i < 7 && f.A.ActionState != PrototypeActionState.Casting; i++) f.Step();
                 Check(f.A.Statistics.Kills == 1 && f.A.ActionState == PrototypeActionState.Casting, "OnKill trigger");
                 for (int i = 0; i < 10; i++) f.Step();
                 Check(Mathf.Approximately(f.A.EffectiveStats.AttackSpeed, 1.5f), "AttackSpeed buff applied");

@@ -93,8 +93,8 @@ namespace LIVE.Prototype
                 }
                 return true;
             }
-            if (IsMoving) return false;
-            if (attackFlash <= seconds) ActionState = PrototypeActionState.Idle;
+            if (IsMoving || (ActionState == PrototypeActionState.BasicAttacking && attackFlash > 0)) return false;
+            if (attackFlash <= 0) ActionState = PrototypeActionState.Idle;
             Retarget();
             // Full-gauge casts take precedence; stable definition order resolves other simultaneous triggers.
             foreach (var runtime in skills)
@@ -125,7 +125,7 @@ namespace LIVE.Prototype
             {
                 case PrototypeSkillTarget.Self: return this;
                 case PrototypeSkillTarget.LowestHealthAlly: return combat.LowestHealthAlly(this);
-                default: return combat.FindNearestEnemy(this);
+                default: Retarget(); return Target;
             }
         }
 

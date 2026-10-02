@@ -19,6 +19,7 @@ namespace LIVE.Prototype
         public int Row => Cell.x;
         public int Column => Cell.y;
         public int SpawnOrder { get; private set; }
+        public string CombatId { get; private set; }
         public int MaxHealth => stats.MaxHealth;
         public int CurrentHealth => currentHealth;
         public bool IsAlive { get; private set; }
@@ -31,6 +32,7 @@ namespace LIVE.Prototype
             Faction = faction;
             stats = combatStats.CopyValidated();
             Cell = spawnCell = new Vector2Int(row, column);
+            CombatId = faction + ":" + row.ToString("D3", System.Globalization.CultureInfo.InvariantCulture) + ":" + column.ToString("D3", System.Globalization.CultureInfo.InvariantCulture);
             healthFill = fill;
             character = visual;
             if (fill != null)
@@ -64,16 +66,24 @@ namespace LIVE.Prototype
             RefreshHealth();
         }
 
-        internal void Retarget() => Target = combat.FindNearestEnemy(this);
+        internal void Retarget()
+        {
+            if (!combat.IsValidEnemy(this, Target)) Target = combat.FindNearestEnemy(this);
+        }
 
         internal void Tick(float seconds)
         {
             if (!IsAlive) return;
+            Retarget();
+            if (ActionState != PrototypeActionState.Casting)
+            {
+                attackCooldown = Mathf.Max(0, attackCooldown - seconds);
+                attackFlash = Mathf.Max(0, attackFlash - seconds);
+                if (character != null && attackFlash <= 0) character.localPosition = Vector3.zero;
+            }
             if (TickAbilities(seconds)) return;
+            if (ActionState == PrototypeActionState.BasicAttacking && attackFlash > 0) return;
             var effective = EffectiveStats;
-            attackCooldown = Mathf.Max(0, attackCooldown - seconds);
-            attackFlash = Mathf.Max(0, attackFlash - seconds);
-            if (character != null && attackFlash <= 0) character.localPosition = Vector3.zero;
             if (IsMoving)
             {
                 moveProgress = Mathf.Min(1, moveProgress + seconds * effective.MoveSpeed);
@@ -95,7 +105,7 @@ namespace LIVE.Prototype
             {
                 if (attackCooldown > 0) return;
                 attackCooldown = 1f / effective.AttackSpeed;
-                attackFlash = 0.12f;
+                attackFlash = Mathf.Min(0.12f, attackCooldown);
                 if (character != null)
                     character.localPosition = (combat.WorldPosition(Target.Cell) - transform.position).normalized * 0.12f;
                 PerformBasicAttack();
