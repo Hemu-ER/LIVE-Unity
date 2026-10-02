@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace LIVE.Prototype
 {
@@ -9,14 +10,16 @@ namespace LIVE.Prototype
         private const float Spacing = 1.6f;
         private static readonly Color TeamA = new Color(0.22f, 0.72f, 1f);
         private static readonly Color TeamB = new Color(1f, 0.43f, 0.29f);
-        [SerializeField] private PrototypeCombatStats testStats = new PrototypeCombatStats();
+        private readonly List<GameObject> unitObjects = new List<GameObject>();
+        public PrototypeRunController RunController { get; private set; }
+        public Camera View => view;
         public PrototypeCombatController Combat { get; private set; }
         private Sprite square;
         private Texture2D texture;
         private Camera view;
 
         public Transform Tiles { get; private set; }
-        public PrototypeUnit[] Units { get; private set; }
+        public PrototypeUnit[] Units { get; private set; } = new PrototypeUnit[0];
 
         private void Awake()
         {
@@ -36,9 +39,9 @@ namespace LIVE.Prototype
             }
 
             MakeSprite("Faction divider", transform, Vector3.zero, new Vector2(0.018f, 4.76f), new Color(0.6f, 0.7f, 0.8f), 1);
-            Units = new[] { CreateUnit("A", 1, TeamA), CreateUnit("B", 4, TeamB) };
+
             Combat = gameObject.AddComponent<PrototypeCombatController>();
-            Combat.Initialize(Rows, Columns, Units, (row, column) => transform.TransformPoint(Position(row, column)));
+            Combat.enabled = false; // The run controller owns the simulation clock.
 
             view = Camera.main;
             if (view == null)
@@ -52,6 +55,9 @@ namespace LIVE.Prototype
             view.clearFlags = CameraClearFlags.SolidColor;
             view.backgroundColor = new Color(0.035f, 0.05f, 0.085f);
             FitCamera();
+            RunController = gameObject.AddComponent<PrototypeRunController>();
+            RunController.Initialize(this);
+            gameObject.AddComponent<PrototypeRunHud>().Initialize(RunController, this);
         }
 
         private void LateUpdate() => FitCamera();
@@ -59,17 +65,22 @@ namespace LIVE.Prototype
         private void FitCamera()
         {
             if (view != null)
-                view.orthographicSize = Mathf.Max(3.1f, 5.4f / Mathf.Max(0.1f, view.aspect));
+            {
+                view.rect = PrototypeRunHud.CameraViewport(Screen.width, Screen.height);
+                view.orthographicSize = Mathf.Max(2.7f, 5.2f / Mathf.Max(0.1f, view.aspect));
+            }
         }
 
         public static Vector3 Position(int row, int column) =>
             new Vector3((column - 2.5f) * Spacing, (1 - row) * Spacing, 0);
 
-        private PrototypeUnit CreateUnit(string faction, int column, Color color)
+        public PrototypeUnit CreateUnit(string faction, int row, int column, PrototypeCombatStats stats, string label)
         {
-            var root = new GameObject($"Test Unit {faction}");
+            Color color = faction == "A" ? TeamA : TeamB;
+            var root = new GameObject(label + " / " + faction);
+            unitObjects.Add(root);
             root.transform.SetParent(transform, false);
-            root.transform.localPosition = Position(1, column);
+            root.transform.localPosition = Position(row, column);
             var character = new GameObject("Character").transform;
             character.SetParent(root.transform, false);
             // A small geometric character silhouette: head, torso and two feet.
@@ -80,7 +91,8 @@ namespace LIVE.Prototype
             MakeSprite("Health background", root.transform, new Vector3(0, 0.62f, 0), new Vector2(1.04f, 0.09f), new Color(0.02f, 0.03f, 0.04f), 3);
             var fill = MakeSprite("Health fill", root.transform, new Vector3(0, 0.62f, -0.01f), new Vector2(1f, 0.05f), new Color(0.35f, 0.95f, 0.5f), 4);
             var unit = root.AddComponent<PrototypeUnit>();
-            unit.Initialize(faction, 1, column, testStats, fill.transform, character);
+            unit.Initialize(faction, row, column, stats, fill.transform, character);
+            unit.DisplayLabel = label;
             return unit;
         }
 
@@ -95,6 +107,25 @@ namespace LIVE.Prototype
             renderer.color = color;
             renderer.sortingOrder = order;
             return renderer;
+        }
+
+        public void ClearUnits()
+        {
+            Combat.FinishAsDraw();
+            foreach (var obj in unitObjects)
+            {
+                if (obj == null) continue;
+                obj.SetActive(false);
+                Destroy(obj);
+            }
+            unitObjects.Clear();
+            Units = new PrototypeUnit[0];
+        }
+
+        public void ConfigureCombat(List<PrototypeUnit> units)
+        {
+            Units = units.ToArray();
+            Combat.Initialize(Rows, Columns, Units, (row, column) => transform.TransformPoint(Position(row, column)));
         }
 
         private void OnDestroy()

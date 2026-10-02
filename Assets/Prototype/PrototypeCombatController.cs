@@ -34,6 +34,14 @@ namespace LIVE.Prototype
         public Vector3 WorldPosition(Vector2Int cell) => position(cell.x, cell.y);
         private void FixedUpdate() => Step(Time.fixedDeltaTime);
 
+        public void FinishAsDraw()
+        {
+            if (Grid == null || State == PrototypeCombatState.Finished) return;
+            Winner = null;
+            State = PrototypeCombatState.Finished;
+            foreach (var unit in units) if (unit != null) unit.StopCombat();
+        }
+
         public void Step(float seconds)
         {
             if (Grid == null || State == PrototypeCombatState.Finished || seconds <= 0 || float.IsNaN(seconds) || float.IsInfinity(seconds)) return;

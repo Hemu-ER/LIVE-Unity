@@ -1,0 +1,325 @@
+{
+  "Rules": {
+    "StartingCredits": 5,
+    "RoundIncome": 5,
+    "InterestCap": 3,
+    "NaturalMasteryExp": 4,
+    "InvestCost": 2,
+    "InvestExp": 2,
+    "RerollCost": 2,
+    "BenchSize": 8,
+    "ShopSize": 5,
+    "PrepSeconds": 30,
+    "CombatSeconds": 60,
+    "ResultSeconds": 2,
+    "TransitionSeconds": 1,
+    "CopiesByCost": [
+      18,
+      15,
+      12
+    ],
+    "StarMultipliers": [
+      1,
+      1.8,
+      3.2
+    ],
+    "ShopOdds": [
+      {
+        "MinLevel": 1,
+        "MaxLevel": 3,
+        "Weights": [
+          80,
+          20,
+          0
+        ]
+      },
+      {
+        "MinLevel": 4,
+        "MaxLevel": 6,
+        "Weights": [
+          70,
+          30,
+          0
+        ]
+      },
+      {
+        "MinLevel": 7,
+        "MaxLevel": 9,
+        "Weights": [
+          57,
+          38,
+          5
+        ]
+      },
+      {
+        "MinLevel": 10,
+        "MaxLevel": 12,
+        "Weights": [
+          43,
+          45,
+          12
+        ]
+      },
+      {
+        "MinLevel": 13,
+        "MaxLevel": 15,
+        "Weights": [
+          30,
+          47,
+          23
+        ]
+      },
+      {
+        "MinLevel": 16,
+        "MaxLevel": 18,
+        "Weights": [
+          20,
+          43,
+          37
+        ]
+      },
+      {
+        "MinLevel": 19,
+        "MaxLevel": 19,
+        "Weights": [
+          14,
+          38,
+          48
+        ]
+      },
+      {
+        "MinLevel": 20,
+        "MaxLevel": 20,
+        "Weights": [
+          10,
+          30,
+          60
+        ]
+      }
+    ]
+  },
+  "Units": [
+    {
+      "Id": "test-unit-01",
+      "DisplayName": "Test Unit 01",
+      "Cost": 1,
+      "Stats": {
+        "MaxHealth": 100,
+        "AttackPower": 20,
+        "Defense": 5,
+        "AttackSpeed": 1,
+        "AttackRange": 1,
+        "MoveSpeed": 2
+      }
+    },
+    {
+      "Id": "test-unit-02",
+      "DisplayName": "Test Unit 02",
+      "Cost": 1,
+      "Stats": {
+        "MaxHealth": 110,
+        "AttackPower": 18,
+        "Defense": 8,
+        "AttackSpeed": 0.9,
+        "AttackRange": 1,
+        "MoveSpeed": 2
+      }
+    },
+    {
+      "Id": "test-unit-03",
+      "DisplayName": "Test Unit 03",
+      "Cost": 1,
+      "Stats": {
+        "MaxHealth": 90,
+        "AttackPower": 21,
+        "Defense": 3,
+        "AttackSpeed": 1.1,
+        "AttackRange": 2,
+        "MoveSpeed": 2
+      }
+    },
+    {
+      "Id": "test-unit-04",
+      "DisplayName": "Test Unit 04",
+      "Cost": 2,
+      "Stats": {
+        "MaxHealth": 135,
+        "AttackPower": 24,
+        "Defense": 10,
+        "AttackSpeed": 1,
+        "AttackRange": 1,
+        "MoveSpeed": 2
+      }
+    },
+    {
+      "Id": "test-unit-05",
+      "DisplayName": "Test Unit 05",
+      "Cost": 2,
+      "Stats": {
+        "MaxHealth": 120,
+        "AttackPower": 26,
+        "Defense": 5,
+        "AttackSpeed": 0.9,
+        "AttackRange": 2,
+        "MoveSpeed": 2
+      }
+    },
+    {
+      "Id": "test-unit-06",
+      "DisplayName": "Test Unit 06",
+      "Cost": 2,
+      "Stats": {
+        "MaxHealth": 110,
+        "AttackPower": 23,
+        "Defense": 4,
+        "AttackSpeed": 1.1,
+        "AttackRange": 3,
+        "MoveSpeed": 2
+      }
+    },
+    {
+      "Id": "test-unit-07",
+      "DisplayName": "Test Unit 07",
+      "Cost": 3,
+      "Stats": {
+        "MaxHealth": 160,
+        "AttackPower": 30,
+        "Defense": 12,
+        "AttackSpeed": 1,
+        "AttackRange": 1,
+        "MoveSpeed": 2
+      }
+    },
+    {
+      "Id": "test-unit-08",
+      "DisplayName": "Test Unit 08",
+      "Cost": 3,
+      "Stats": {
+        "MaxHealth": 145,
+        "AttackPower": 32,
+        "Defense": 8,
+        "AttackSpeed": 0.9,
+        "AttackRange": 2,
+        "MoveSpeed": 2
+      }
+    },
+    {
+      "Id": "test-unit-09",
+      "DisplayName": "Test Unit 09",
+      "Cost": 3,
+      "Stats": {
+        "MaxHealth": 130,
+        "AttackPower": 29,
+        "Defense": 5,
+        "AttackSpeed": 1.2,
+        "AttackRange": 3,
+        "MoveSpeed": 2
+      }
+    }
+  ],
+  "EnemyRounds": [
+    {
+      "OpponentType": 0,
+      "Units": [
+        {
+          "UnitId": "test-unit-01",
+          "Stars": 1,
+          "Row": 1,
+          "Column": 4
+        }
+      ]
+    },
+    {
+      "OpponentType": 0,
+      "Units": [
+        {
+          "UnitId": "test-unit-01",
+          "Stars": 1,
+          "Row": 0,
+          "Column": 4
+        },
+        {
+          "UnitId": "test-unit-02",
+          "Stars": 1,
+          "Row": 2,
+          "Column": 4
+        }
+      ]
+    },
+    {
+      "OpponentType": 0,
+      "Units": [
+        {
+          "UnitId": "test-unit-01",
+          "Stars": 1,
+          "Row": 0,
+          "Column": 4
+        },
+        {
+          "UnitId": "test-unit-02",
+          "Stars": 1,
+          "Row": 1,
+          "Column": 4
+        },
+        {
+          "UnitId": "test-unit-03",
+          "Stars": 1,
+          "Row": 2,
+          "Column": 4
+        }
+      ]
+    },
+    {
+      "OpponentType": 0,
+      "Units": [
+        {
+          "UnitId": "test-unit-04",
+          "Stars": 2,
+          "Row": 0,
+          "Column": 4
+        },
+        {
+          "UnitId": "test-unit-05",
+          "Stars": 1,
+          "Row": 1,
+          "Column": 4
+        },
+        {
+          "UnitId": "test-unit-06",
+          "Stars": 1,
+          "Row": 2,
+          "Column": 4
+        }
+      ]
+    },
+    {
+      "OpponentType": 0,
+      "Units": [
+        {
+          "UnitId": "test-unit-07",
+          "Stars": 2,
+          "Row": 0,
+          "Column": 4
+        },
+        {
+          "UnitId": "test-unit-08",
+          "Stars": 1,
+          "Row": 1,
+          "Column": 4
+        },
+        {
+          "UnitId": "test-unit-09",
+          "Stars": 1,
+          "Row": 2,
+          "Column": 4
+        },
+        {
+          "UnitId": "test-unit-01",
+          "Stars": 2,
+          "Row": 1,
+          "Column": 5
+        }
+      ]
+    }
+  ]
+}

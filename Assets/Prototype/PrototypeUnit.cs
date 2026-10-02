@@ -24,6 +24,7 @@ namespace LIVE.Prototype
         public bool IsAlive { get; private set; }
         public bool IsMoving { get; private set; }
         public PrototypeUnit Target { get; private set; }
+        public string DisplayLabel { get; set; }
 
         public void Initialize(string faction, int row, int column, PrototypeCombatStats combatStats, Transform fill, Transform visual)
         {

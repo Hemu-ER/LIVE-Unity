@@ -36,6 +36,14 @@ namespace LIVE.Prototype.Editor
                 var board = UnityEngine.Object.FindAnyObjectByType<BattlefieldPrototype>();
                 Require(board != null && board.Tiles.childCount == 18, "Expected a 3x6 board.");
                 Require(board.GetComponentsInChildren<TextMesh>().Length == 0, "Battlefield should contain no text labels.");
+                // Retain the original two-unit regression suite independently of the run's random starter.
+                board.RunController.enabled = false;
+                board.ClearUnits();
+                board.ConfigureCombat(new List<PrototypeUnit>
+                {
+                    board.CreateUnit("A", 1, 1, new PrototypeCombatStats(), "Regression A"),
+                    board.CreateUnit("B", 1, 4, new PrototypeCombatStats(), "Regression B")
+                });
                 Require(board.Units.Length == 2 && board.Units[0].Faction == "A" && board.Units[1].Faction == "B", "Expected A/B units.");
                 var combat = board.Combat;
                 combat.enabled = false; // Run the exact simulation step without wall-clock timing variability.
@@ -68,6 +76,7 @@ namespace LIVE.Prototype.Editor
                 VerifyCompleteBattle(board);
                 VerifyMultipleUnitsAndRouting();
                 VerifyRangedAttacks();
+                PrototypeRunSmokeCheck.Validate(board);
                 Require(Camera.main != null && Camera.main.orthographic, "Expected orthographic camera.");
                 Debug.Log("PROTOTYPE_SMOKE_CHECK_PASSED: board, stats, occupancy, reservations, movement, targeting, range, cooldown, damage, death, victory, full combat loop and reset.");
                 EditorApplication.Exit(0);
