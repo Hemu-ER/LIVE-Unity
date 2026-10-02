@@ -11,6 +11,8 @@ namespace LIVE.Prototype
         public string DisplayName;
         public int Cost;
         public PrototypeCombatStats Stats;
+        public PrototypeArchetype Archetype;
+        public PrototypeAbilitySettings Abilities = new PrototypeAbilitySettings();
     }
 
     [Serializable]
@@ -89,6 +91,7 @@ namespace LIVE.Prototype
                     string.IsNullOrWhiteSpace(definition.DisplayName) || definition.Cost < 1 || definition.Cost > 3 ||
                     definition.Stats == null || lookup.ContainsKey(definition.Id))
                     throw new InvalidOperationException("Invalid or duplicate unit definition.");
+                ValidateAbilities(definition);
                 lookup.Add(definition.Id, definition);
             }
             for (int level = 1; level <= 20; level++)
@@ -116,6 +119,43 @@ namespace LIVE.Prototype
                         unit.Row < 0 || unit.Row >= 3 || unit.Column < 3 || unit.Column >= 6 ||
                         !cells.Add(unit.Row * 6 + unit.Column))
                         throw new InvalidOperationException("Invalid enemy team placement.");
+            }
+        }
+
+        private static bool Finite(float value) => !float.IsNaN(value) && !float.IsInfinity(value);
+
+        private static void ValidateAbilities(PrototypeUnitDefinition unit)
+        {
+            var stats = unit.Stats;
+            var abilities = unit.Abilities;
+            if (!Enum.IsDefined(typeof(PrototypeArchetype), unit.Archetype) ||
+                stats.MaxHealth < 1 || stats.AttackPower < 0 || stats.Defense < 0 || stats.AttackRange < 1 ||
+                !Finite(stats.AttackSpeed) || stats.AttackSpeed <= 0 || !Finite(stats.MoveSpeed) || stats.MoveSpeed <= 0 ||
+                !Finite(stats.SkillAmplification) || stats.SkillAmplification < 0 ||
+                !Finite(stats.CriticalChance) || stats.CriticalChance < 0 || stats.CriticalChance > 1 ||
+                !Finite(stats.DefensePenetration) || stats.DefensePenetration < 0 || abilities == null ||
+                !Finite(abilities.MaxSkillGauge) || abilities.MaxSkillGauge <= 0 ||
+                !Finite(abilities.GaugePerAttack) || abilities.GaugePerAttack < 0 ||
+                !Finite(abilities.GaugePerHit) || abilities.GaugePerHit < 0 || abilities.Skills == null)
+                throw new InvalidOperationException("Invalid combat stats/abilities: " + unit.Id);
+            var ids = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var skill in abilities.Skills)
+            {
+                if (skill == null || string.IsNullOrWhiteSpace(skill.Id) || !ids.Add(skill.Id) ||
+                    !Enum.IsDefined(typeof(PrototypeSkillTrigger), skill.Trigger) ||
+                    !Enum.IsDefined(typeof(PrototypeSkillTarget), skill.Target) ||
+                    !Finite(skill.CastSeconds) || skill.CastSeconds < 0 || skill.Range < 0 || skill.AttacksRequired < 1 ||
+                    !Finite(skill.HealthThreshold) || skill.HealthThreshold < 0 || skill.HealthThreshold > 1 ||
+                    skill.Effects == null || skill.Effects.Length == 0)
+                    throw new InvalidOperationException("Invalid skill: " + unit.Id);
+                foreach (var effect in skill.Effects)
+                    if (effect == null || !Enum.IsDefined(typeof(PrototypeSkillEffectType), effect.Type) ||
+                        !Enum.IsDefined(typeof(PrototypeBuffStat), effect.Stat) ||
+                        !Finite(effect.BaseDamage) || effect.BaseDamage < 0 ||
+                        !Finite(effect.AttackRatio) || effect.AttackRatio < 0 ||
+                        !Finite(effect.SkillRatio) || effect.SkillRatio < 0 ||
+                        !Finite(effect.BuffAmount) || !Finite(effect.Duration) || effect.Duration <= 0 || effect.DashCells < 0)
+                        throw new InvalidOperationException("Invalid effect: " + skill.Id);
             }
         }
 

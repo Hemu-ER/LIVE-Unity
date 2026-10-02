@@ -74,7 +74,7 @@ namespace LIVE.Prototype
         public static Vector3 Position(int row, int column) =>
             new Vector3((column - 2.5f) * Spacing, (1 - row) * Spacing, 0);
 
-        public PrototypeUnit CreateUnit(string faction, int row, int column, PrototypeCombatStats stats, string label)
+        public PrototypeUnit CreateUnit(string faction, int row, int column, PrototypeCombatStats stats, string label, PrototypeAbilitySettings abilities = null)
         {
             Color color = faction == "A" ? TeamA : TeamB;
             var root = new GameObject(label + " / " + faction);
@@ -90,9 +90,13 @@ namespace LIVE.Prototype
             MakeSprite("Right foot", character, new Vector3(0.14f, -0.33f, 0), new Vector2(0.18f, 0.16f), color, 2);
             MakeSprite("Health background", root.transform, new Vector3(0, 0.62f, 0), new Vector2(1.04f, 0.09f), new Color(0.02f, 0.03f, 0.04f), 3);
             var fill = MakeSprite("Health fill", root.transform, new Vector3(0, 0.62f, -0.01f), new Vector2(1f, 0.05f), new Color(0.35f, 0.95f, 0.5f), 4);
+            var shield = MakeSprite("Shield fill", root.transform, new Vector3(-0.5f, 0.72f, -0.01f), new Vector2(0, 0.035f), new Color(0.65f, 0.9f, 1f), 4);
+            var gauge = MakeSprite("Skill gauge", root.transform, new Vector3(-0.5f, 0.52f, -0.01f), new Vector2(0, 0.035f), new Color(1f, 0.8f, 0.25f), 4);
             var unit = root.AddComponent<PrototypeUnit>();
             unit.Initialize(faction, row, column, stats, fill.transform, character);
             unit.DisplayLabel = label;
+            unit.ConfigureAbilities(abilities);
+            root.AddComponent<PrototypeUnitView>().Initialize(character, shield.transform, gauge.transform);
             return unit;
         }
 
@@ -122,10 +126,10 @@ namespace LIVE.Prototype
             Units = new PrototypeUnit[0];
         }
 
-        public void ConfigureCombat(List<PrototypeUnit> units)
+        public void ConfigureCombat(List<PrototypeUnit> units, int seed = 1729)
         {
             Units = units.ToArray();
-            Combat.Initialize(Rows, Columns, Units, (row, column) => transform.TransformPoint(Position(row, column)));
+            Combat.Initialize(Rows, Columns, Units, (row, column) => transform.TransformPoint(Position(row, column)), seed);
         }
 
         private void OnDestroy()

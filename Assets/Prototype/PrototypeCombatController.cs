@@ -12,13 +12,17 @@ namespace LIVE.Prototype
         private readonly List<PrototypeUnit> units = new List<PrototypeUnit>();
         private Func<int, int, Vector3> position;
         private float readyElapsed;
+        private int randomSeed;
+        public PrototypeRandom Random { get; private set; }
+        public event Action<PrototypeCombatEvent> EventRaised;
         public PrototypeCombatState State { get; private set; } = PrototypeCombatState.Ready;
         public string Winner { get; private set; }
         public PrototypeCombatGrid Grid { get; private set; }
         public IReadOnlyList<PrototypeUnit> Units => units.AsReadOnly();
 
-        public void Initialize(int rows, int columns, IEnumerable<PrototypeUnit> combatants, Func<int, int, Vector3> cellPosition)
+        public void Initialize(int rows, int columns, IEnumerable<PrototypeUnit> combatants, Func<int, int, Vector3> cellPosition, int seed = 1729)
         {
+            randomSeed = seed;
             position = cellPosition ?? throw new ArgumentNullException(nameof(cellPosition));
             Grid = new PrototypeCombatGrid(rows, columns);
             units.Clear();
@@ -37,9 +41,11 @@ namespace LIVE.Prototype
         public void FinishAsDraw()
         {
             if (Grid == null || State == PrototypeCombatState.Finished) return;
+            bool wasFighting = State == PrototypeCombatState.Fighting;
             Winner = null;
             State = PrototypeCombatState.Finished;
             foreach (var unit in units) if (unit != null) unit.StopCombat();
+            if (wasFighting) Publish(new PrototypeCombatEvent(PrototypeCombatEventType.CombatFinished));
         }
 
         public void Step(float seconds)
@@ -65,6 +71,7 @@ namespace LIVE.Prototype
         {
             if (Grid == null || State != PrototypeCombatState.Ready) return;
             State = PrototypeCombatState.Fighting;
+            foreach (var unit in units) if (unit != null && unit.IsAlive) unit.MarkCombatStarted();
             CheckOutcome();
         }
 
@@ -75,12 +82,14 @@ namespace LIVE.Prototype
             State = PrototypeCombatState.Ready;
             Winner = null;
             readyElapsed = 0;
+            Random = new PrototypeRandom(randomSeed);
             Grid.Clear();
             foreach (var unit in units)
             {
                 if (unit == null) continue;
                 unit.ResetForBattle();
                 Grid.Place(unit, unit.Cell);
+                Publish(new PrototypeCombatEvent(PrototypeCombatEventType.UnitSpawned, unit));
             }
         }
 
@@ -108,6 +117,7 @@ namespace LIVE.Prototype
         internal void NotifyDeath(PrototypeUnit dead)
         {
             Grid.Release(dead);
+            Publish(new PrototypeCombatEvent(PrototypeCombatEventType.UnitDied, dead));
             foreach (var unit in units)
                 if (unit != null && unit.IsAlive && unit.Target == dead) unit.Retarget();
             if (State == PrototypeCombatState.Fighting) CheckOutcome();
@@ -125,7 +135,36 @@ namespace LIVE.Prototype
             Winner = survivor;
             State = PrototypeCombatState.Finished;
             foreach (var unit in units) if (unit != null) unit.StopCombat();
+            Publish(new PrototypeCombatEvent(PrototypeCombatEventType.CombatFinished));
             Debug.Log(Winner == null ? "LIVE: Draw (no survivors)." : $"LIVE: {Winner} wins.", this);
+        }
+
+        public PrototypeUnit LowestHealthAlly(PrototypeUnit caster)
+        {
+            PrototypeUnit best = null;
+            foreach (var unit in units)
+            {
+                if (unit == null || !unit.IsAlive || unit.Faction != caster.Faction) continue;
+                if (best == null || (long)unit.CurrentHealth * best.MaxHealth < (long)best.CurrentHealth * unit.MaxHealth ||
+                    ((long)unit.CurrentHealth * best.MaxHealth == (long)best.CurrentHealth * unit.MaxHealth && unit.SpawnOrder < best.SpawnOrder)) best = unit;
+            }
+            return best;
+        }
+
+        internal void Publish(PrototypeCombatEvent message)
+        {
+            // Observers cannot cancel rules; a broken view must not interrupt simulation.
+            if (EventRaised == null) return;
+            foreach (Action<PrototypeCombatEvent> observer in EventRaised.GetInvocationList())
+                try { observer(message); } catch (Exception exception) { Debug.LogException(exception); }
+        }
+
+        public string StatisticsSummary()
+        {
+            var text = new System.Text.StringBuilder("LIVE combat statistics\n");
+            foreach (var unit in units)
+                if (unit != null) text.AppendLine($"#{unit.SpawnOrder} {unit.Faction} {unit.DisplayLabel}: {unit.Statistics}");
+            return text.ToString();
         }
     }
 }

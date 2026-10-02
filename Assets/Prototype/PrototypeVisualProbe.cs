@@ -45,6 +45,21 @@ namespace LIVE.Prototype
             yield return Capture("combat-1280x720", 1280, 720);
             while (controller.Run.Phase == PrototypeRunPhase.Combat) controller.Step(0.02f);
             yield return Capture("result-1280x720", 1280, 720);
+            // A separate opt-in view fixture makes shield/gauge bars visible in a repeatable capture.
+            board.GetComponent<PrototypeRunHud>().enabled = false;
+            board.ClearUnits();
+            var combatants = new System.Collections.Generic.List<PrototypeUnit>();
+            int[] definitions = { 0, 1, 5, 3, 6, 7 };
+            for (int i = 0; i < definitions.Length; i++)
+            {
+                var definition = controller.Data.Units[definitions[i]];
+                combatants.Add(board.CreateUnit(i < 3 ? "A" : "B", i % 3, i < 3 ? 1 : 4,
+                    controller.Data.CombatStats(definition.Id, 1), definition.DisplayName, definition.Abilities));
+            }
+            board.ConfigureCombat(combatants);
+            board.Combat.StartBattle();
+            for (int tick = 0; tick < 12; tick++) board.Combat.Step(0.02f);
+            yield return Capture("abilities-1280x720", 1280, 720);
             Debug.Log("VISUAL_PROBE_PASSED");
             Application.Quit(0);
         }

@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace LIVE.Prototype
 {
-    public sealed class PrototypeUnit : MonoBehaviour
+    public sealed partial class PrototypeUnit : MonoBehaviour
     {
         [SerializeField] private PrototypeCombatStats stats = new PrototypeCombatStats();
         [SerializeField, Min(0)] private int currentHealth;
@@ -45,11 +45,13 @@ namespace LIVE.Prototype
         {
             combat = controller;
             SpawnOrder = order;
+            GetComponent<PrototypeUnitView>()?.Bind(this, controller);
         }
 
         internal void ResetForBattle()
         {
             stats = stats.CopyValidated();
+            ResetAbilities();
             Cell = spawnCell;
             IsAlive = true;
             currentHealth = MaxHealth;
@@ -67,31 +69,36 @@ namespace LIVE.Prototype
         internal void Tick(float seconds)
         {
             if (!IsAlive) return;
+            if (TickAbilities(seconds)) return;
+            var effective = EffectiveStats;
             attackCooldown = Mathf.Max(0, attackCooldown - seconds);
             attackFlash = Mathf.Max(0, attackFlash - seconds);
             if (character != null && attackFlash <= 0) character.localPosition = Vector3.zero;
             if (IsMoving)
             {
-                moveProgress = Mathf.Min(1, moveProgress + seconds * stats.MoveSpeed);
+                moveProgress = Mathf.Min(1, moveProgress + seconds * effective.MoveSpeed);
                 transform.position = Vector3.Lerp(moveStart, combat.WorldPosition(destination), moveProgress);
                 if (moveProgress >= 1)
                 {
                     combat.Grid.CompleteStep(this, destination);
+                    var from = Cell;
                     Cell = destination;
+                    ActionState = PrototypeActionState.Idle;
+                    combat.Publish(new PrototypeCombatEvent(PrototypeCombatEventType.UnitMoved, this, from: from, to: Cell));
                     IsMoving = false;
                 }
                 return; // No attack on the movement completion tick either.
             }
             Retarget();
             if (Target == null) return;
-            if (PrototypeCombatGrid.Distance(Cell, Target.Cell) <= stats.AttackRange)
+            if (PrototypeCombatGrid.Distance(Cell, Target.Cell) <= effective.AttackRange)
             {
                 if (attackCooldown > 0) return;
-                attackCooldown = 1f / stats.AttackSpeed;
+                attackCooldown = 1f / effective.AttackSpeed;
                 attackFlash = 0.12f;
                 if (character != null)
                     character.localPosition = (combat.WorldPosition(Target.Cell) - transform.position).normalized * 0.12f;
-                Target.TakeDamage(PrototypeDamageCalculator.Calculate(stats.AttackPower, Target.stats.Defense));
+                PerformBasicAttack();
             }
             else if (combat.Grid.TryFindStep(this, Target, out var next) && combat.Grid.TryReserveStep(this, next))
             {
@@ -99,13 +106,14 @@ namespace LIVE.Prototype
                 moveStart = transform.position;
                 moveProgress = 0;
                 IsMoving = true;
+                ActionState = PrototypeActionState.Moving;
             }
         }
 
         public void TakeDamage(int damage)
         {
             if (!IsAlive || damage <= 0) return;
-            SetHealth(currentHealth - Mathf.Min(currentHealth, damage));
+            ReceiveDamage(damage, null, false);
         }
 
         public void SetHealth(int health)
@@ -115,6 +123,7 @@ namespace LIVE.Prototype
             RefreshHealth();
             if (currentHealth > 0) return;
             IsAlive = false;
+            CancelAbilities(true);
             IsMoving = false;
             Target = null;
             foreach (var renderer in renderers) if (renderer != null) renderer.enabled = false;
@@ -132,6 +141,7 @@ namespace LIVE.Prototype
             IsMoving = false;
             Target = null;
             attackFlash = 0;
+            CancelAbilities(false);
             if (character != null) character.localPosition = Vector3.zero;
         }
 

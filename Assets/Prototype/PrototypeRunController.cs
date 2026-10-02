@@ -56,6 +56,7 @@ namespace LIVE.Prototype
             {
                 battlefield.Combat.FinishAsDraw(); // Stops the core on the 60-second deadline too.
                 Debug.Log($"LIVE Round {Run.Round}: {Run.LastMessage}", this);
+                Debug.Log(battlefield.Combat.StatisticsSummary(), this);
             }
             displayedRevision = Run.Revision;
             displayedPhase = Run.Phase;
@@ -69,12 +70,12 @@ namespace LIVE.Prototype
             {
                 if (owned.Location != PrototypeUnitLocation.Board) continue;
                 combatants.Add(battlefield.CreateUnit("A", owned.Row, owned.Column,
-                    Data.CombatStats(owned.DefinitionId, owned.Stars), Label(owned.DefinitionId, owned.Stars)));
+                    Data.CombatStats(owned.DefinitionId, owned.Stars), Label(owned.DefinitionId, owned.Stars), Data.Definition(owned.DefinitionId).Abilities));
             }
             foreach (var enemy in Run.Enemies.Units)
                 combatants.Add(battlefield.CreateUnit("B", enemy.Row, enemy.Column,
-                    Data.CombatStats(enemy.UnitId, enemy.Stars), Label(enemy.UnitId, enemy.Stars)));
-            battlefield.ConfigureCombat(combatants);
+                    Data.CombatStats(enemy.UnitId, enemy.Stars), Label(enemy.UnitId, enemy.Stars), Data.Definition(enemy.UnitId).Abilities));
+            battlefield.ConfigureCombat(combatants, unchecked(Run.Seed + Run.Round * 7919));
         }
 
         public string Label(string id, int stars) => Data.Definition(id).DisplayName.Replace("Test Unit ", "U") + " " + new string('*', stars);

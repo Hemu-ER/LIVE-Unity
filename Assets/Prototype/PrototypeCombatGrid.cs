@@ -62,7 +62,7 @@ namespace LIVE.Prototype
             Array.Clear(reservations, 0, reservations.Length);
         }
 
-        public bool TryFindStep(PrototypeUnit unit, PrototypeUnit target, out Vector2Int next)
+        public bool TryFindStep(PrototypeUnit unit, PrototypeUnit target, out Vector2Int next, ISet<Vector2Int> excluded = null)
         {
             next = unit.Cell;
             var queue = new Queue<Vector2Int>();
@@ -90,7 +90,7 @@ namespace LIVE.Prototype
                 });
                 foreach (var neighbour in neighbours)
                 {
-                    if (!IsFree(neighbour) || firstSteps.ContainsKey(neighbour)) continue;
+                    if (!IsFree(neighbour) || firstSteps.ContainsKey(neighbour) || (excluded != null && excluded.Contains(neighbour))) continue;
                     firstSteps[neighbour] = cell == unit.Cell ? neighbour : firstSteps[cell];
                     queue.Enqueue(neighbour);
                 }
