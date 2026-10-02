@@ -11,6 +11,7 @@ namespace LIVE.Prototype
         private BattlefieldPrototype board;
         private long selectedId;
         private GUIStyle title, text, small, button, unitLabel;
+        private Font nameFont;
         public void Initialize(PrototypeRunController runController, BattlefieldPrototype battlefield)
         { controller = runController; board = battlefield; }
 
@@ -37,6 +38,9 @@ namespace LIVE.Prototype
             small = new GUIStyle(GUI.skin.label) { fontSize = 14 };
             button = new GUIStyle(GUI.skin.button) { fontSize = 16, wordWrap = true };
             unitLabel = new GUIStyle(GUI.skin.box) { fontSize = 15, alignment = TextAnchor.MiddleCenter };
+            // Preserve the layout; use an installed Hangul font for imported display names.
+            nameFont = Font.CreateDynamicFontFromOSFont(new[] { "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans CJK KR" }, 16);
+            foreach (var style in new[] { title, text, small, button, unitLabel }) style.font = nameFont;
         }
 
         private void OnGUI()
@@ -142,7 +146,8 @@ namespace LIVE.Prototype
             {
                 if (unit == null || !unit.IsAlive) continue;
                 Vector2 location = LogicalScreen(unit.transform.position + Vector3.up * 0.91f);
-                GUI.Label(new Rect(location.x - 48, location.y - 10, 96, 23), unit.DisplayLabel, unitLabel);
+                float width = Mathf.Max(96, unitLabel.CalcSize(new GUIContent(unit.DisplayLabel)).x + 12);
+                GUI.Label(new Rect(location.x - width / 2, location.y - 10, width, 23), unit.DisplayLabel, unitLabel);
             }
         }
 
@@ -152,5 +157,6 @@ namespace LIVE.Prototype
             { selectedId = selectedId == occupant.InstanceId ? 0 : occupant.InstanceId; return; }
             if (selectedId != 0 && controller.Move(selectedId, location, first, second)) selectedId = 0;
         }
+        private void OnDestroy() { if (nameFont != null) Destroy(nameFont); }
     }
 }

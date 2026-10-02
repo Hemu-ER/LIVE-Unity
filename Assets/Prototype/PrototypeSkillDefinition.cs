@@ -2,7 +2,7 @@ using System;
 
 namespace LIVE.Prototype
 {
-    public enum PrototypeArchetype { Fighter, RangedAttack, RangedSkill }
+    public enum PrototypeArchetype { Fighter, RangedAttack, RangedSkill, Tank, MeleeSkill, Assassin, Support, PveReference }
     public enum PrototypeSkillTrigger { GaugeFull, AfterNAttacks, HealthBelowPercent, OnKill, OnCombatStart }
     public enum PrototypeSkillTarget { CurrentTarget, Self, LowestHealthAlly }
     public enum PrototypeSkillEffectType { Damage, Heal, Shield, StatBuff, Dash }

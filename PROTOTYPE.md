@@ -2,6 +2,9 @@
 
 Unity **6000.6.4f1**, `Assets/Scenes/BattlefieldPrototype.unity`에서 Play합니다.
 기존 `LIVE.unity`, `SampleScene.unity`는 수정하지 않습니다.
+현재 기본 Play는 웹 roster의 실제 실험체 32종을 사용하며 스킬은 기본 공격만 수행합니다.
+U01~U09는 RunController ContextMenu의 별도 회귀 모드로 유지합니다.
+원본·필드 대응·규칙 차이는 [WEB_TO_UNITY_MIGRATION.md](WEB_TO_UNITY_MIGRATION.md)를 참고하십시오.
 
 ## 직접 확인 순서
 
@@ -18,8 +21,9 @@ Unity **6000.6.4f1**, `Assets/Scenes/BattlefieldPrototype.unity`에서 Play합�
 
 전투/결과/전환 중 구매·판매·배치·투자·Reroll은 UI와 모델 양쪽에서 차단됩니다.
 전투에 유닛을 배치하지 않아도 Ready할 수 있으며, 해당 라운드는 패배로 처리됩니다.
-UI의 U01~U09는 Test Unit 01~09의 축약 표기이고, * / ** / ***는 별 등급입니다.
-영문 임시 UI를 사용해 추가 폰트 에셋 의존성을 피했습니다.
+회귀 모드 UI의 U01~U09는 Test Unit 01~09의 축약 표기이고, * / ** / ***는 별 등급입니다.
+기본 WebRoster 모드는 roster.js의 한국어 표시 이름을 그대로 사용합니다.
+임시 UI 레이아웃은 유지합니다. 한국어 이름은 설치된 OS 한국어 폰트를 사용하며 폰트 에셋은 포함하지 않습니다.
 
 ## 확정 요청 규칙의 구현
 
@@ -63,7 +67,8 @@ UI의 U01~U09는 Test Unit 01~09의 축약 표기이고, * / ** / ***는 별 등
 
 ## 데이터 편집
 
-`Assets/Prototype/Resources/PrototypeGameData.json`이 테스트 정의/설정의 원본입니다.
+`Assets/Prototype/Resources/PrototypeGameData.json`은 U01~U09 테스트 정의와 공통 Unity 규칙의 원본입니다.
+실제 실험체 정의는 `Resources/WebRoster.json`의 고정 커밋 데이터 스냅샷에서 변환합니다.
 
 - Units: Stable ID, 이름, Cost, 독립 전투 Stats. Test Unit 01~09, 비용별 3종.
 - Rules: 경제, 제한시간, 상점 확률, 풀 수량, 별 배율.
@@ -124,7 +129,7 @@ VisualProbe는 명시적 실행 인자가 있는 개발 빌드에서만 실행�
 
 ## 범위 및 기술 부채
 
-- 실제 캐릭터/아트, 아이템, 시너지, 마나, 지역/날씨, 드론, PvP/네트워크/로그인은 없습니다.
+- 실제 캐릭터 스킬/아트, 아이템, 시너지, 마나, 지역/날씨, 드론, PvP/네트워크/로그인은 없습니다.
 - 결과 후 탈락/런 종료/승리 조건은 정의하지 않았습니다. Round 5 이후 마지막 적 테이블을 재사용합니다.
 - 적 테이블·무료 라운드 상점 갱신·동률 행동 순서 등은 프로토타입 검증용이며 최종 게임 규칙이 아닙니다.
 - 동일 틱은 고정 CombatId 순서대로 처리하므로 A에게 선공 이점이 있습니다. 고정 틱이지만 서버/플랫폼 간 완전 결정론은 아닙니다.

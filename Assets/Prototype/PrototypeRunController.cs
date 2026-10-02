@@ -12,14 +12,27 @@ namespace LIVE.Prototype
         private PrototypeRunPhase displayedPhase;
         public PrototypeGameData Data { get; private set; }
         public PrototypeRunModel Run { get; private set; }
+        public PrototypeDataMode DataMode { get; private set; }
 
         public void Initialize(BattlefieldPrototype board)
         {
             battlefield = board;
-            Data = PrototypeGameData.Load();
+            SetDataMode(PrototypeDataMode.WebRoster);
+        }
+
+        public void SetDataMode(PrototypeDataMode mode)
+        {
+            DataMode = mode;
+            Data = mode == PrototypeDataMode.WebRoster ? PrototypeWebRoster.Load().CreateGameData() : PrototypeGameData.Load();
             Run = new PrototypeRunModel(Data, seed);
+            displayedRevision = -1;
             Synchronize();
         }
+
+        [ContextMenu("Prototype/Use U01-U09 regression fixtures")]
+        private void UseFixtures() => SetDataMode(PrototypeDataMode.TestFixtures);
+        [ContextMenu("Prototype/Use imported web roster")]
+        private void UseWebRoster() => SetDataMode(PrototypeDataMode.WebRoster);
 
         private void FixedUpdate() => Step(Time.fixedDeltaTime);
 

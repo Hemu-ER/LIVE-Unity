@@ -12,6 +12,13 @@ namespace LIVE.Prototype
         public int Cost;
         public PrototypeCombatStats Stats;
         public PrototypeArchetype Archetype;
+        public PrototypeDataMode DataMode;
+        public string Role, MainStat, AssetReferenceId, UnityImplementationStatus;
+        public string[] Affiliations = Array.Empty<string>();
+        public bool PveOnly, WebImplemented;
+        // Unbound extension points, never synthesized from character names.
+        public string ActiveDefinitionReference, PassiveDefinitionReference;
+        public bool Playable => !PveOnly && Cost >= 1 && Cost <= 3;
         public PrototypeAbilitySettings Abilities = new PrototypeAbilitySettings();
     }
 
@@ -88,7 +95,7 @@ namespace LIVE.Prototype
             foreach (var definition in Units)
             {
                 if (definition == null || string.IsNullOrWhiteSpace(definition.Id) ||
-                    string.IsNullOrWhiteSpace(definition.DisplayName) || definition.Cost < 1 || definition.Cost > 3 ||
+                    string.IsNullOrWhiteSpace(definition.DisplayName) || definition.Cost < (definition.PveOnly ? 0 : 1) || definition.Cost > 3 ||
                     definition.Stats == null || lookup.ContainsKey(definition.Id))
                     throw new InvalidOperationException("Invalid or duplicate unit definition.");
                 ValidateAbilities(definition);

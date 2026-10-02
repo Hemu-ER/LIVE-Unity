@@ -11,6 +11,7 @@ namespace LIVE.Prototype
         {
             foreach (var definition in data.Units)
             {
+                if (!definition.Playable) continue;
                 int count = data.Rules.CopiesByCost[definition.Cost - 1];
                 available.Add(definition.Id, count);
                 capacity.Add(definition.Id, count);
@@ -47,6 +48,7 @@ namespace LIVE.Prototype
             this.data = data; this.pool = pool; this.random = random;
             slots = new string[data.Rules.ShopSize];
             definitions = new List<PrototypeUnitDefinition>(data.Units);
+            definitions.RemoveAll(unit => !unit.Playable);
             definitions.Sort((a, b) => string.CompareOrdinal(a.Id, b.Id));
         }
 

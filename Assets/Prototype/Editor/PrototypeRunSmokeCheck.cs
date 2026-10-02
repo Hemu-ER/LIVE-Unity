@@ -10,6 +10,7 @@ namespace LIVE.Prototype.Editor
         public static void Validate(BattlefieldPrototype board)
         {
             assertions = 0;
+            board.RunController.SetDataMode(PrototypeDataMode.TestFixtures);
             var data = PrototypeGameData.Load();
             Check(data.Units.Length >= 9, "At least nine data-defined units.");
             for (int cost = 1; cost <= 3; cost++)

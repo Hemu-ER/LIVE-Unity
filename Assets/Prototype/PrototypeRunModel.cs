@@ -45,7 +45,7 @@ namespace LIVE.Prototype
             Shop = new PrototypeShop(data, Pool, random);
             Player = new PrototypePlayerState(data.Rules.StartingCredits, data.Rules.BenchSize);
             var starters = new List<PrototypeUnitDefinition>();
-            foreach (var unit in data.Units) if (unit.Cost == 1 && Pool.Available(unit.Id) > 0) starters.Add(unit);
+            foreach (var unit in data.Units) if (unit.Playable && unit.Cost == 1 && Pool.Available(unit.Id) > 0) starters.Add(unit);
             starters.Sort((a, b) => string.CompareOrdinal(a.Id, b.Id));
             if (starters.Count == 0) throw new InvalidOperationException("No one-cost starter available.");
             string id = starters[random.Next(starters.Count)].Id;
