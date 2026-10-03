@@ -4,7 +4,7 @@ namespace LIVE.Prototype
 {
     public enum PrototypeArchetype { Fighter, RangedAttack, RangedSkill, Tank, MeleeSkill, Assassin, Support, PveReference }
     public enum PrototypeSkillTrigger { GaugeFull, AfterNAttacks, HealthBelowPercent, OnKill, OnCombatStart, Periodic, OnBasicHit, StatusAtLeast, OnLethalDamage }
-    public enum PrototypeSkillTarget { CurrentTarget, Self, LowestHealthAlly }
+    public enum PrototypeSkillTarget { CurrentTarget, Self, LowestHealthAlly, NearestEnemy }
     public enum PrototypeSkillEffectType { Damage, Heal, Shield, StatBuff, Dash, Status, Execute }
     public enum PrototypeBuffStat { AttackPower, SkillAmplification, Defense, AttackSpeed, CriticalChance, DefensePenetration, MoveSpeed, NextAttackMultiplier, DamageReduction, BasicDamageReduction, Lifesteal }
     public enum PrototypeSkillExecution { Cast, Instant }
@@ -34,7 +34,7 @@ namespace LIVE.Prototype
         public PrototypeStatusKind StatusKind;
         public int StackDelta = 1, StackLimit = 1;
         public float ExecuteThreshold;
-        public float[] AttackRatioByStar, SkillRatioByStar, BuffAmountByStar;
+        public float[] AttackRatioByStar, SkillRatioByStar, BuffAmountByStar, TargetMaxHealthRatioByStar, ExecuteThresholdByStar;
     }
 
     [Serializable]
@@ -53,6 +53,7 @@ namespace LIVE.Prototype
         public PrototypeSkillExecution Execution;
         public float FirstTriggerSeconds, IntervalSeconds = 1, CooldownSeconds;
         public bool CanRunWhileControlled;
+        public bool IgnoreRange, ReactAfterDamage, ResolvePerTarget;
         public string RequiredStatus, CustomHandlerKey;
         public int RequiredStacks = 1;
     }
@@ -81,7 +82,7 @@ namespace LIVE.Prototype
     {
         internal PrototypeBuffStat Stat;
         internal float Amount;
-        internal float Remaining;
+        internal double Expires;
         internal bool ConsumeOnAttack;
         internal bool Multiplicative, Permanent;
         internal string Key;

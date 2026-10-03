@@ -177,8 +177,12 @@ namespace LIVE.Prototype
                 ((skill.Trigger == PrototypeSkillTrigger.OnBasicHit || skill.Trigger == PrototypeSkillTrigger.OnLethalDamage) && skill.Execution != PrototypeSkillExecution.Instant) ||
                 (skill.Trigger == PrototypeSkillTrigger.OnLethalDamage && (!skill.OncePerCombat || skill.Target != PrototypeSkillTarget.Self)))
                 throw new InvalidOperationException("Invalid trigger configuration: " + skill.Id);
+            if (skill.ReactAfterDamage && (skill.Execution != PrototypeSkillExecution.Instant || skill.Trigger != PrototypeSkillTrigger.HealthBelowPercent))
+                throw new InvalidOperationException("Damage reactions require an instant health condition");
             foreach (var effect in skill.Effects)
             {
+                if (skill.ResolvePerTarget && (effect.DelaySeconds != 0 || effect.Area != skill.Effects[0].Area || effect.Radius != skill.Effects[0].Radius || effect.ChebyshevRadius != skill.Effects[0].ChebyshevRadius))
+                    throw new InvalidOperationException("Per-target effects require a shared selector and no delay");
                 if (!Enum.IsDefined(typeof(PrototypeEffectArea), effect.Area) || !Enum.IsDefined(typeof(PrototypeStatusKind), effect.StatusKind) ||
                     effect.Radius < 0 || !Finite(effect.DelaySeconds) || effect.DelaySeconds < 0 ||
                     !Finite(effect.SourceMaxHealthRatio) || effect.SourceMaxHealthRatio < 0 ||
@@ -190,7 +194,7 @@ namespace LIVE.Prototype
                     (skill.Trigger == PrototypeSkillTrigger.OnLethalDamage && (effect.Area != PrototypeEffectArea.Single || effect.DelaySeconds > 0 ||
                         (effect.Type != PrototypeSkillEffectType.Heal && effect.Type != PrototypeSkillEffectType.Status && effect.Type != PrototypeSkillEffectType.StatBuff))))
                     throw new InvalidOperationException("Invalid mechanism effect: " + skill.Id);
-                foreach (var values in new[] { effect.AttackRatioByStar, effect.SkillRatioByStar, effect.BuffAmountByStar })
+                foreach (var values in new[] { effect.AttackRatioByStar, effect.SkillRatioByStar, effect.BuffAmountByStar, effect.TargetMaxHealthRatioByStar, effect.ExecuteThresholdByStar })
                 {
                     if (values == null || values.Length == 0) continue;
                     if (values.Length != 3) throw new InvalidOperationException("Expected three star coefficients: " + skill.Id);

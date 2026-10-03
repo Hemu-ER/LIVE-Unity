@@ -81,6 +81,7 @@ namespace LIVE.Prototype.Editor
                 PrototypeAiSmokeCheck.Validate();
                 PrototypeRosterSmokeCheck.Validate(board);
                 PrototypeMechanismSmokeCheck.Validate(board);
+                PrototypeWebBatchSmokeCheck.Validate(board);
                 Require(Camera.main != null && Camera.main.orthographic, "Expected orthographic camera.");
                 Debug.Log("PROTOTYPE_SMOKE_CHECK_PASSED: board, stats, occupancy, reservations, movement, targeting, range, cooldown, damage, death, victory, full combat loop and reset.");
                 EditorApplication.Exit(0);

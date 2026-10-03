@@ -134,12 +134,77 @@
     {
       "Id": "web.garnet.active",
       "DisplayName": "처형식",
-      "Implemented": false
+      "Implemented": true,
+      "Definition": {
+        "Id": "web.garnet.active",
+        "Trigger": 5,
+        "Target": 3,
+        "Effects": [
+          {
+            "Type": 5,
+            "Key": "garnet.cc",
+            "StatusKind": 1,
+            "Duration": 1
+          },
+          {
+            "Type": 3,
+            "Stat": 2,
+            "Multiplicative": true,
+            "Permanent": true,
+            "BuffAmount": -0.1
+          },
+          {
+            "Type": 0,
+            "TargetMaxHealthRatioByStar": [
+              0.1,
+              0.15,
+              0.25
+            ],
+            "TrueDamage": true
+          },
+          {
+            "Type": 6,
+            "ExecuteThresholdByStar": [
+              0.1,
+              0.15,
+              0.25
+            ]
+          }
+        ],
+        "Execution": 1,
+        "CastSeconds": 0,
+        "CanRunWhileControlled": true,
+        "FirstTriggerSeconds": 0,
+        "OncePerCombat": true,
+        "IgnoreRange": true
+      }
     },
     {
       "Id": "web.garnet.passive",
       "DisplayName": "익숙한 아픔",
-      "Implemented": false
+      "Implemented": true,
+      "Definition": {
+        "Id": "web.garnet.passive",
+        "Trigger": 4,
+        "Target": 1,
+        "Effects": [
+          {
+            "Type": 3,
+            "Stat": 9,
+            "BuffAmountByStar": [
+              0.15,
+              0.25,
+              0.4
+            ],
+            "Permanent": true,
+            "Key": "garnet.pain"
+          }
+        ],
+        "Execution": 1,
+        "CastSeconds": 0,
+        "CanRunWhileControlled": true,
+        "OncePerCombat": true
+      }
     },
     {
       "Id": "web.kenneth.active",
@@ -174,12 +239,62 @@
     {
       "Id": "web.bianca.active",
       "DisplayName": "진조의 군림",
-      "Implemented": false
+      "Implemented": true,
+      "Definition": {
+        "Id": "web.bianca.active",
+        "Trigger": 5,
+        "Target": 0,
+        "Effects": [
+          {
+            "Type": 0,
+            "SkillRatioByStar": [
+              3.3,
+              4.5,
+              7.5
+            ],
+            "TargetMaxHealthRatioByStar": [
+              0.12,
+              0.17,
+              0.27
+            ]
+          }
+        ],
+        "Execution": 1,
+        "CastSeconds": 0,
+        "CanRunWhileControlled": true,
+        "FirstTriggerSeconds": 4,
+        "IntervalSeconds": 8,
+        "IgnoreRange": true
+      }
     },
     {
       "Id": "web.bianca.passive",
       "DisplayName": "짧은 안식",
-      "Implemented": false
+      "Implemented": true,
+      "Definition": {
+        "Id": "web.bianca.passive",
+        "Trigger": 2,
+        "Target": 1,
+        "Effects": [
+          {
+            "Type": 1,
+            "SourceMaxHealthRatio": 0.5
+          },
+          {
+            "Type": 3,
+            "Stat": 8,
+            "Duration": 3,
+            "Key": "bianca.rest",
+            "BuffAmount": 0.9
+          }
+        ],
+        "Execution": 1,
+        "CastSeconds": 0,
+        "CanRunWhileControlled": true,
+        "HealthThreshold": 0.5,
+        "OncePerCombat": true,
+        "ReactAfterDamage": true
+      }
     },
     {
       "Id": "web.cathy.active",
@@ -369,12 +484,84 @@
     {
       "Id": "web.charlotte.active",
       "DisplayName": "기적 실현",
-      "Implemented": false
+      "Implemented": true,
+      "Definition": {
+        "Id": "web.charlotte.active",
+        "Trigger": 5,
+        "Target": 1,
+        "Effects": [
+          {
+            "Type": 5,
+            "Area": 2,
+            "Key": "charlotte.miracle",
+            "StatusKind": 2,
+            "Duration": 1
+          }
+        ],
+        "Execution": 1,
+        "CastSeconds": 0,
+        "CanRunWhileControlled": true,
+        "FirstTriggerSeconds": 10,
+        "IntervalSeconds": 10
+      }
     },
     {
       "Id": "web.charlotte.passive",
       "DisplayName": "치유의 빛",
-      "Implemented": false
+      "Implemented": true,
+      "Definition": {
+        "Id": "web.charlotte.passive",
+        "Trigger": 1,
+        "Target": 1,
+        "Effects": [
+          {
+            "Type": 1,
+            "Area": 6,
+            "Radius": 2,
+            "ChebyshevRadius": true,
+            "SkillRatioByStar": [
+              0.6,
+              0.9,
+              1.5
+            ]
+          },
+          {
+            "Type": 3,
+            "Stat": 0,
+            "BuffAmountByStar": [
+              0.1,
+              0.15,
+              0.3
+            ],
+            "Area": 6,
+            "Radius": 2,
+            "ChebyshevRadius": true,
+            "Multiplicative": true,
+            "Duration": 3,
+            "Key": "charlotte.light"
+          },
+          {
+            "Type": 3,
+            "Stat": 1,
+            "BuffAmountByStar": [
+              0.1,
+              0.15,
+              0.3
+            ],
+            "Area": 6,
+            "Radius": 2,
+            "ChebyshevRadius": true,
+            "Multiplicative": true,
+            "Duration": 3,
+            "Key": "charlotte.light"
+          }
+        ],
+        "Execution": 1,
+        "CastSeconds": 0,
+        "CanRunWhileControlled": true,
+        "AttacksRequired": 3,
+        "ResolvePerTarget": true
+      }
     }
   ],
   "Characters": [

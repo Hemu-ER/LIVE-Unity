@@ -24,15 +24,15 @@ namespace LIVE.Prototype
         public double CombatDefense => Math.Max(0, ModifiedStat(stats.Defense, PrototypeBuffStat.Defense));
         private double Now => combat == null ? 0 : combat.ElapsedSeconds;
 
-        public int StatusStacks(string key) => key != null && statuses.TryGetValue(key, out var status) && status.Expires > Now ? status.Stacks : 0;
+        public int StatusStacks(string key) => key != null && statuses.TryGetValue(key, out var status) && status.Expires > Now + 0.000001 ? status.Stacks : 0;
         public bool HasStatus(PrototypeStatusKind kind)
         {
             foreach (var status in statuses.Values)
-                if (status.Kind == kind && status.Stacks > 0 && status.Expires > Now) return true;
+                if (status.Kind == kind && status.Stacks > 0 && status.Expires > Now + 0.000001) return true;
             return false;
         }
 
-        public void ApplyStatus(string key, int delta, int limit, float duration, PrototypeStatusKind kind = PrototypeStatusKind.Generic, bool permanent = false)
+        public void ApplyStatus(string key, int delta, int limit, float duration, PrototypeStatusKind kind = PrototypeStatusKind.Generic, bool permanent = false, PrototypeUnit source = null, string skillId = null)
         {
             if (!IsAlive || string.IsNullOrEmpty(key) || limit < 1 || float.IsNaN(duration) || float.IsInfinity(duration) || (!permanent && duration <= 0)) return;
             if (kind == PrototypeStatusKind.CrowdControl && HasStatus(PrototypeStatusKind.CrowdControlImmune)) return;
@@ -42,6 +42,7 @@ namespace LIVE.Prototype
             if (statuses.TryGetValue(key, out var previous)) expiry = Math.Max(expiry, previous.Expires);
             statuses[key] = new Status { Stacks = count, Expires = expiry, Kind = kind };
             if (kind == PrototypeStatusKind.CrowdControl) InterruptAction();
+            combat?.Publish(new PrototypeCombatEvent(PrototypeCombatEventType.StatusApplied, source, this, count, skillId, effectKey: key));
         }
 
         private void InterruptAction()
@@ -63,7 +64,7 @@ namespace LIVE.Prototype
             double multiplier = 1;
             foreach (var buff in buffs)
             {
-                if (buff.Stat != stat) continue;
+                if (buff.Stat != stat || (!buff.Permanent && Now + 0.000001 >= buff.Expires)) continue;
                 if (buff.Multiplicative) multiplier *= Math.Max(0, 1 + buff.Amount);
                 else basis += buff.Amount;
             }
@@ -79,7 +80,7 @@ namespace LIVE.Prototype
                 if (IsAlive && combat.State == PrototypeCombatState.Fighting && pending.Anchor != null && pending.Anchor.IsAlive)
                     ApplyResolvedEffect(pending.Skill, pending.Effect, pending.Anchor);
             foreach (var runtime in skills)
-                if (runtime.Definition.Execution == PrototypeSkillExecution.Instant && runtime.Definition.Trigger != PrototypeSkillTrigger.OnBasicHit &&
+                if (runtime.Definition.Execution == PrototypeSkillExecution.Instant && !runtime.Definition.ReactAfterDamage && runtime.Definition.Trigger != PrototypeSkillTrigger.OnBasicHit &&
                     runtime.Definition.Trigger != PrototypeSkillTrigger.OnLethalDamage) TryBeginCast(runtime);
         }
 
@@ -114,10 +115,10 @@ namespace LIVE.Prototype
             return result;
         }
 
-        private void ApplyResolvedEffect(PrototypeSkillDefinition skill, PrototypeSkillEffect effect, PrototypeUnit anchor)
+        private void ApplyResolvedEffect(PrototypeSkillDefinition skill, PrototypeSkillEffect effect, PrototypeUnit anchor, PrototypeUnit recipient = null)
         {
             long healthDamage = 0;
-            foreach (var target in EffectTargets(effect, anchor))
+            foreach (var target in recipient != null ? new List<PrototypeUnit> { recipient } : EffectTargets(effect, anchor))
             {
                 if (!IsAlive || combat.State != PrototypeCombatState.Fighting) break;
                 if (target == null || !target.IsAlive) continue;
@@ -132,15 +133,15 @@ namespace LIVE.Prototype
                         target.ReceiveDamage(damage, this, false, skill.Id);
                         healthDamage += target.LastHealthDamage;
                         break;
-                    case PrototypeSkillEffectType.Heal: target.ApplyHeal(PrototypeDamageCalculator.RoundAmount(raw), this); break;
+                    case PrototypeSkillEffectType.Heal: target.ApplyHeal(PrototypeDamageCalculator.RoundAmount(raw), this, skill.Id); break;
                     case PrototypeSkillEffectType.Shield: target.ApplyShield(PrototypeDamageCalculator.RoundAmount(raw), this); break;
-                    case PrototypeSkillEffectType.StatBuff: target.ApplyBuff(effect); break;
+                    case PrototypeSkillEffectType.StatBuff: target.ApplyBuff(effect, this, skill.Id); break;
                     case PrototypeSkillEffectType.Dash: DashToward(target, effect.DashCells, skill.Id); break;
-                    case PrototypeSkillEffectType.Status: target.ApplyStatus(effect.Key, effect.StackDelta, effect.StackLimit, effect.Duration, effect.StatusKind, effect.Permanent); break;
+                    case PrototypeSkillEffectType.Status: target.ApplyStatus(effect.Key, effect.StackDelta, effect.StackLimit, effect.Duration, effect.StatusKind, effect.Permanent, this, skill.Id); break;
                     case PrototypeSkillEffectType.Execute:
                         // Web Garnet's execute is a direct death after its threshold check, not damage.
                         if ((float)target.CurrentHealth / target.MaxHealth <= effect.ExecuteThreshold)
-                        { Statistics.Kills++; target.SetHealth(0); }
+                        { Statistics.Kills++; Statistics.Executions++; combat.Publish(new PrototypeCombatEvent(PrototypeCombatEventType.UnitExecuted, this, target, target.CurrentHealth, skill.Id)); target.SetHealth(0); }
                         break;
                 }
             }

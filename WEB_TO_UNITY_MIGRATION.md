@@ -1,4 +1,4 @@
-> 후속 업데이트: 이 문서의 최초 roster 이식 시점 표와 차이는 `WEB_SKILL_COMPATIBILITY.md`를 우선합니다. 현재 32명 모두 64개 skill reference를 가지며 아이솔만 액티브/패시브가 실행됩니다. 시너지/PvE는 여전히 미이식입니다.
+> 후속 업데이트: 이 문서의 최초 roster 이식 시점 표와 차이는 `WEB_SKILL_COMPATIBILITY.md`를 우선합니다. 현재 32명 모두 64개 skill reference를 가지며 아이솔·비앙카·가넷·샬럿 4명의 액티브/패시브가 실행됩니다. 시너지/PvE는 여전히 미이식입니다.
 
 # 웹 → Unity 데이터 마이그레이션 체크리스트
 
