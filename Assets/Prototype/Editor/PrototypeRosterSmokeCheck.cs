@@ -26,9 +26,9 @@ namespace LIVE.Prototype.Editor
                     unit.Stats.AttackSpeed == row.baseStats.@as && unit.Stats.AttackRange == row.baseStats.range, "All source stats preserved: " + row.id);
                 Check(unit.PveOnly == row.pveOnly && unit.Playable == row.Playable && unit.WebImplemented == row.implemented &&
                     unit.MainStat == row.main && unit.AssetReferenceId == row.asset.sd, "Source metadata preserved: " + row.id);
-                Check(unit.DataMode == PrototypeDataMode.WebRoster && unit.Abilities.Skills.Length == (new[] { "isol", "bianca", "garnet", "charlotte" }.Contains(unit.Id) ? 2 : 0) &&
+                Check(unit.DataMode == PrototypeDataMode.WebRoster && unit.Abilities.Skills.Length == (new[] { "isol", "bianca", "garnet", "charlotte", "kenneth", "abigail", "sua", "marcus" }.Contains(unit.Id) ? 2 : 0) &&
                     (!row.Playable || (!string.IsNullOrEmpty(unit.ActiveDefinitionReference) && !string.IsNullOrEmpty(unit.PassiveDefinitionReference))),
-                    "Only four ported characters executable; all playable characters have references");
+                    "Only eight ported characters executable; all playable characters have references");
                 if (row.Playable) Check(pool.Capacity(row.id) == data.Rules.CopiesByCost[row.cost - 1], "Existing per-cost capacity");
                 else Check(!pool.TryTake(row.id), "PvE cannot be taken from player pool");
             }
@@ -77,7 +77,7 @@ namespace LIVE.Prototype.Editor
             Check(controller.Ready() && run.Phase == PrototypeRunPhase.Combat, "Enter real roster combat");
             for (int tick = 0; tick < 3100 && run.Phase == PrototypeRunPhase.Combat; tick++) controller.Step(0.02f);
             Check(run.Phase == PrototypeRunPhase.Result && run.History.Count == 1, "Combat ends and awards result");
-            Check(board.Units.All(u => u.Statistics.SkillCastCount == 0), "Imported characters use basic combat only");
+            Check(board.Units.All(u => u.Skills.Count > 0 || u.Statistics.SkillCastCount == 0), "Pending characters do not cast invented skills");
             Check(board.Units.Any(u => u.Statistics.BasicAttackCount > 0), "Real basic attacks executed");
             controller.Step(controller.Data.Rules.ResultSeconds);
             controller.Step(controller.Data.Rules.TransitionSeconds);

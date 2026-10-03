@@ -13,6 +13,8 @@ namespace LIVE.Prototype
         private PrototypeUnit castTarget;
         private float castRemaining;
         private bool combatStarted;
+        private PrototypeUnit basicHitTarget;
+        private int survivingBasicHits;
         public PrototypeActionState ActionState { get; private set; }
         public float SkillGauge { get; private set; }
         public float MaxSkillGauge => Mathf.Max(1, abilities.MaxSkillGauge);
@@ -34,6 +36,8 @@ namespace LIVE.Prototype
                 if (effect.BuffAmountByStar?.Length == 3) effect.BuffAmount = effect.BuffAmountByStar[index];
                 if (effect.TargetMaxHealthRatioByStar?.Length == 3) effect.TargetMaxHealthRatio = effect.TargetMaxHealthRatioByStar[index];
                 if (effect.ExecuteThresholdByStar?.Length == 3) effect.ExecuteThreshold = effect.ExecuteThresholdByStar[index];
+                if (effect.HealCasterRatioByStar?.Length == 3) effect.HealCasterRatio = effect.HealCasterRatioByStar[index];
+                if (effect.SourceMaxHealthRatioByStar?.Length == 3) effect.SourceMaxHealthRatio = effect.SourceMaxHealthRatioByStar[index];
             }
             ResetAbilities();
         }
@@ -41,6 +45,7 @@ namespace LIVE.Prototype
         private void ResetAbilities()
         {
             skills.Clear(); statuses.Clear(); delayedEffects.Clear(); LastHealthDamage = 0;
+            basicHitTarget = null; survivingBasicHits = 0;
             foreach (var definition in abilities.Skills ?? Array.Empty<PrototypeSkillDefinition>())
                 skills.Add(new PrototypeSkillRuntime(definition) { NextTriggerAt = definition.FirstTriggerSeconds });
             buffs.Clear(); casting = null; castTarget = null; castRemaining = 0;
@@ -122,7 +127,7 @@ namespace LIVE.Prototype
             switch (definition.Trigger)
             {
                 case PrototypeSkillTrigger.GaugeFull: return SkillGauge >= MaxSkillGauge;
-                case PrototypeSkillTrigger.AfterNAttacks: return Statistics.BasicAttackCount - runtime.LastAttackCount >= Mathf.Max(1, definition.AttacksRequired);
+                case PrototypeSkillTrigger.AfterNAttacks: return (definition.CountOnlySurvivingHits ? survivingBasicHits : Statistics.BasicAttackCount) - runtime.LastAttackCount >= Mathf.Max(1, definition.AttacksRequired);
                 case PrototypeSkillTrigger.HealthBelowPercent: return (float)CurrentHealth / MaxHealth <= definition.HealthThreshold;
                 case PrototypeSkillTrigger.OnKill: return Statistics.Kills > runtime.LastKillCount;
                 case PrototypeSkillTrigger.OnCombatStart: return combatStarted && runtime.CastCount == 0;
@@ -156,6 +161,8 @@ namespace LIVE.Prototype
                 (IsControlled && !runtime.Definition.CanRunWhileControlled) || Now + 0.000001 < runtime.NextReadyAt ||
                 (runtime.Definition.OncePerCombat && runtime.CastCount > 0) || (!reactive && !TriggerReady(runtime))) return false;
             if (!string.IsNullOrEmpty(runtime.Definition.CustomHandlerKey) && !combat.SkillHandlers.ContainsKey(runtime.Definition.CustomHandlerKey)) return false;
+            if (!string.IsNullOrEmpty(runtime.Definition.RequiredHitStatus) &&
+                (basicHitTarget == null || !basicHitTarget.IsAlive || basicHitTarget.StatusStacks(runtime.Definition.RequiredHitStatus) < runtime.Definition.RequiredStacks)) return false;
             var target = SelectSkillTarget(runtime.Definition);
             if (!InSkillRange(runtime.Definition, target)) return false;
             if (runtime.Definition.Execution == PrototypeSkillExecution.Cast)
@@ -163,9 +170,11 @@ namespace LIVE.Prototype
             runtime.NextReadyAt = Now + runtime.Definition.CooldownSeconds;
             if (runtime.Definition.Trigger == PrototypeSkillTrigger.Periodic) runtime.NextTriggerAt += runtime.Definition.IntervalSeconds;
             runtime.CastCount++;
-            runtime.LastAttackCount = Statistics.BasicAttackCount;
+            runtime.LastAttackCount = runtime.Definition.CountOnlySurvivingHits ? survivingBasicHits : Statistics.BasicAttackCount;
             runtime.LastKillCount = Statistics.Kills;
             SkillGauge = 0;
+            if (runtime.Definition.ConsumeHitStatus)
+                basicHitTarget.ApplyStatus(runtime.Definition.RequiredHitStatus, -runtime.Definition.RequiredStacks, int.MaxValue, 1, source: this, skillId: runtime.Definition.Id);
             Statistics.SkillCastCount++;
             combat.Publish(new PrototypeCombatEvent(PrototypeCombatEventType.SkillCast, this, target, skillId: runtime.Definition.Id));
             if (runtime.Definition.Execution == PrototypeSkillExecution.Instant) ApplySkill(runtime.Definition, target);
@@ -225,15 +234,21 @@ namespace LIVE.Prototype
             int damage = PrototypeDamageCalculator.Mitigate(CombatAttackPower * Math.Max(0, multiplier),
                 target.CombatDefense, effective.DefensePenetration, critical);
             double lifesteal = Math.Max(0, ModifiedStat(0, PrototypeBuffStat.Lifesteal));
+            string lifestealSkillId = null;
+            foreach (var buff in buffs) if (buff.Stat == PrototypeBuffStat.Lifesteal && (buff.Permanent || buff.Expires > Now + 0.000001)) lifestealSkillId = buff.SkillId;
             target.ReceiveDamage(damage, this, critical, isBasic: true);
             buffs.RemoveAll(buff => buff.ConsumeOnAttack);
+            // This heal belongs to the already resolved hit, including the killing blow.
+            if (IsAlive) ApplyHeal(PrototypeDamageCalculator.RoundAmount(target.LastHealthDamage * lifesteal), this, lifestealSkillId);
             if (IsAlive && combat.State == PrototypeCombatState.Fighting)
             {
-                ApplyHeal(PrototypeDamageCalculator.RoundAmount(target.LastHealthDamage * lifesteal), this);
+                basicHitTarget = target;
+                if (target.IsAlive) survivingBasicHits++;
                 FireReactiveSkills(PrototypeSkillTrigger.OnBasicHit);
                 foreach (var runtime in skills)
                     if (runtime.Definition.Execution == PrototypeSkillExecution.Instant && runtime.Definition.Trigger == PrototypeSkillTrigger.AfterNAttacks) TryBeginCast(runtime);
             }
+            basicHitTarget = null;
             GainGauge(abilities.GaugePerAttack);
         }
 
@@ -296,13 +311,13 @@ namespace LIVE.Prototype
             return actual;
         }
 
-        public int ApplyShield(int amount, PrototypeUnit source = null)
+        public int ApplyShield(int amount, PrototypeUnit source = null, string skillId = null)
         {
             if (!IsAlive || amount <= 0) return 0;
             int actual = (int)Math.Min(amount, (long)int.MaxValue - Shield);
             Shield += actual;
             if (source != null) source.Statistics.ShieldGranted += actual;
-            combat?.Publish(new PrototypeCombatEvent(PrototypeCombatEventType.ShieldApplied, source, this, actual));
+            combat?.Publish(new PrototypeCombatEvent(PrototypeCombatEventType.ShieldApplied, source, this, actual, skillId));
             return actual;
         }
 
@@ -311,7 +326,7 @@ namespace LIVE.Prototype
             if (!IsAlive || (!effect.Permanent && effect.Duration <= 0)) return;
             if (!string.IsNullOrEmpty(effect.Key)) buffs.RemoveAll(buff => buff.Key == effect.Key && buff.Stat == effect.Stat);
             buffs.Add(new PrototypeActiveBuff { Stat = effect.Stat, Amount = effect.BuffAmount,
-                Expires = effect.Permanent ? double.PositiveInfinity : Now + effect.Duration, ConsumeOnAttack = effect.ConsumeOnAttack, Key = effect.Key,
+                Expires = effect.Permanent ? double.PositiveInfinity : Now + effect.Duration, ConsumeOnAttack = effect.ConsumeOnAttack, Key = effect.Key, SkillId = skillId,
                 Multiplicative = effect.Multiplicative, Permanent = effect.Permanent });
             combat?.Publish(new PrototypeCombatEvent(PrototypeCombatEventType.BuffApplied, source, this, skillId: skillId, effectKey: effect.Key));
         }

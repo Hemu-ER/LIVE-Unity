@@ -9,6 +9,7 @@ namespace LIVE.Prototype
     public enum PrototypeBuffStat { AttackPower, SkillAmplification, Defense, AttackSpeed, CriticalChance, DefensePenetration, MoveSpeed, NextAttackMultiplier, DamageReduction, BasicDamageReduction, Lifesteal }
     public enum PrototypeSkillExecution { Cast, Instant }
     public enum PrototypeEffectArea { Single, AllEnemies, AllAllies, TargetRow, TargetColumn, AdjacentEnemies, NearbyAllies }
+    public enum PrototypeEffectAnchor { SkillTarget, Caster, BasicHitTarget }
     public enum PrototypeStatusKind { Generic, CrowdControl, Invulnerable, Immortal, CrowdControlImmune }
     public enum PrototypeActionState { Idle, Moving, BasicAttacking, Casting, Dead }
 
@@ -25,16 +26,18 @@ namespace LIVE.Prototype
         public bool ConsumeOnAttack;
         public int DashCells = 2;
         public PrototypeEffectArea Area;
+        public PrototypeEffectAnchor Anchor;
         public int Radius = 1;
         public bool ChebyshevRadius;
         public bool Multiplicative, Permanent, TrueDamage;
+        public bool PreserveAuthoredPrecision;
         public string Key;
         public float DelaySeconds;
         public float SourceMaxHealthRatio, TargetMaxHealthRatio, TargetCurrentHealthRatio, HealCasterRatio;
         public PrototypeStatusKind StatusKind;
         public int StackDelta = 1, StackLimit = 1;
         public float ExecuteThreshold;
-        public float[] AttackRatioByStar, SkillRatioByStar, BuffAmountByStar, TargetMaxHealthRatioByStar, ExecuteThresholdByStar;
+        public float[] AttackRatioByStar, SkillRatioByStar, BuffAmountByStar, TargetMaxHealthRatioByStar, ExecuteThresholdByStar, HealCasterRatioByStar, SourceMaxHealthRatioByStar;
     }
 
     [Serializable]
@@ -53,7 +56,9 @@ namespace LIVE.Prototype
         public PrototypeSkillExecution Execution;
         public float FirstTriggerSeconds, IntervalSeconds = 1, CooldownSeconds;
         public bool CanRunWhileControlled;
-        public bool IgnoreRange, ReactAfterDamage, ResolvePerTarget;
+        public bool IgnoreRange, ReactAfterDamage, ResolvePerTarget, CountOnlySurvivingHits;
+        public string RequiredHitStatus;
+        public bool ConsumeHitStatus;
         public string RequiredStatus, CustomHandlerKey;
         public int RequiredStacks = 1;
     }
@@ -85,6 +90,6 @@ namespace LIVE.Prototype
         internal double Expires;
         internal bool ConsumeOnAttack;
         internal bool Multiplicative, Permanent;
-        internal string Key;
+        internal string Key, SkillId;
     }
 }

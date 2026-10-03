@@ -12,7 +12,7 @@ namespace LIVE.Prototype.Editor
         {
             assertions=0;
             var catalog=PrototypeCharacterSkills.Load();
-            Check(catalog.Definitions.Count(e=>e.Implemented)==8,"Only Isol plus three new pairs");
+            Check(catalog.Definitions.Count(e=>e.Implemented)==16,"Exactly eight implemented pairs");
             foreach(var id in Ids)for(int star=1;star<=3;star++)
             {
                 var data=PrototypeWebRoster.Load().CreateGameData();var def=data.Definition(id);

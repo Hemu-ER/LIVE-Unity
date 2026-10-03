@@ -5,7 +5,7 @@ namespace LIVE.Prototype
     public enum PrototypeCombatEventType
     {
         UnitSpawned, UnitMoved, BasicAttackStarted, DamageDealt, CriticalHit,
-        SkillCast, HealApplied, ShieldApplied, UnitDied, CombatFinished, StatusApplied, BuffApplied, DamagePrevented, UnitExecuted
+        SkillCast, HealApplied, ShieldApplied, UnitDied, CombatFinished, StatusApplied, BuffApplied, DamagePrevented, UnitExecuted, StatusConsumed
     }
 
     public sealed class PrototypeCombatEvent

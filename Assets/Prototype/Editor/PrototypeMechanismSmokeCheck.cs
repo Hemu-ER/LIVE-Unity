@@ -11,7 +11,7 @@ namespace LIVE.Prototype.Editor
         {
             var catalog = PrototypeCharacterSkills.Load();
             Check(catalog.Definitions.Length == 64 && catalog.Characters.Length == 32, "32 pairs of references");
-            Check(catalog.Definitions.Count(e => e.Implemented) == 8, "Exactly four characters ported");
+            Check(catalog.Definitions.Count(e => e.Implemented) == 16, "Exactly eight characters ported");
             var copy = JsonUtility.FromJson<PrototypeCharacterSkills>(JsonUtility.ToJson(catalog)); copy.Validate();
             copy.Definitions[1].Id = copy.Definitions[0].Id;
             bool rejected = false; try { copy.Validate(); } catch (InvalidOperationException) { rejected = true; }

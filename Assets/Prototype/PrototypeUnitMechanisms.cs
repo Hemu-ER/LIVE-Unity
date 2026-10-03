@@ -36,11 +36,19 @@ namespace LIVE.Prototype
         {
             if (!IsAlive || string.IsNullOrEmpty(key) || limit < 1 || float.IsNaN(duration) || float.IsInfinity(duration) || (!permanent && duration <= 0)) return;
             if (kind == PrototypeStatusKind.CrowdControl && HasStatus(PrototypeStatusKind.CrowdControlImmune)) return;
-            int count = (int)Math.Max(0, Math.Min(limit, (long)StatusStacks(key) + delta));
-            if (count == 0) { statuses.Remove(key); return; }
+            int before = StatusStacks(key);
+            int count = (int)Math.Max(0, Math.Min(limit, (long)before + delta));
+            if (count == 0)
+            {
+                statuses.Remove(key);
+                if (before > 0) combat?.Publish(new PrototypeCombatEvent(PrototypeCombatEventType.StatusConsumed, source, this, before, skillId, effectKey: key));
+                return;
+            }
             double expiry = permanent ? double.PositiveInfinity : Now + duration;
             if (statuses.TryGetValue(key, out var previous)) expiry = Math.Max(expiry, previous.Expires);
             statuses[key] = new Status { Stacks = count, Expires = expiry, Kind = kind };
+            if (delta < 0 && count < before)
+                combat?.Publish(new PrototypeCombatEvent(PrototypeCombatEventType.StatusConsumed, source, this, before - count, skillId, effectKey: key));
             if (kind == PrototypeStatusKind.CrowdControl) InterruptAction();
             combat?.Publish(new PrototypeCombatEvent(PrototypeCombatEventType.StatusApplied, source, this, count, skillId, effectKey: key));
         }
@@ -92,6 +100,9 @@ namespace LIVE.Prototype
 
         private List<PrototypeUnit> EffectTargets(PrototypeSkillEffect effect, PrototypeUnit anchor)
         {
+            if (effect.Anchor == PrototypeEffectAnchor.Caster) anchor = this;
+            else if (effect.Anchor == PrototypeEffectAnchor.BasicHitTarget) anchor = basicHitTarget;
+            if (anchor == null) return new List<PrototypeUnit>();
             if (effect.Area == PrototypeEffectArea.Single) return new List<PrototypeUnit> { anchor };
             var result = new List<PrototypeUnit>();
             foreach (var unit in combat.Units)
@@ -134,7 +145,7 @@ namespace LIVE.Prototype
                         healthDamage += target.LastHealthDamage;
                         break;
                     case PrototypeSkillEffectType.Heal: target.ApplyHeal(PrototypeDamageCalculator.RoundAmount(raw), this, skill.Id); break;
-                    case PrototypeSkillEffectType.Shield: target.ApplyShield(PrototypeDamageCalculator.RoundAmount(raw), this); break;
+                    case PrototypeSkillEffectType.Shield: target.ApplyShield(PrototypeDamageCalculator.RoundAmount(raw), this, skill.Id); break;
                     case PrototypeSkillEffectType.StatBuff: target.ApplyBuff(effect, this, skill.Id); break;
                     case PrototypeSkillEffectType.Dash: DashToward(target, effect.DashCells, skill.Id); break;
                     case PrototypeSkillEffectType.Status: target.ApplyStatus(effect.Key, effect.StackDelta, effect.StackLimit, effect.Duration, effect.StatusKind, effect.Permanent, this, skill.Id); break;
@@ -145,8 +156,8 @@ namespace LIVE.Prototype
                         break;
                 }
             }
-            if (effect.HealCasterRatio > 0 && combat.State == PrototypeCombatState.Fighting)
-                ApplyHeal(PrototypeDamageCalculator.RoundAmount(healthDamage * (double)effect.HealCasterRatio), this);
+            if (effect.HealCasterRatio > 0 && IsAlive)
+                ApplyHeal(PrototypeDamageCalculator.RoundAmount(healthDamage * (effect.PreserveAuthoredPrecision ? PrototypeDamageCalculator.AuthoredRatio(effect.HealCasterRatio) : (double)effect.HealCasterRatio)), this, skill.Id);
         }
     }
 }

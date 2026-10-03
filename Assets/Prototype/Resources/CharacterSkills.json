@@ -94,12 +94,78 @@
     {
       "Id": "web.marcus.active",
       "DisplayName": "지각변동",
-      "Implemented": false
+      "Implemented": true,
+      "Definition": {
+        "Id": "web.marcus.active",
+        "Trigger": 5,
+        "Target": 1,
+        "Effects": [
+          {
+            "Type": 0,
+            "Area": 1,
+            "AttackRatioByStar": [
+              1.5,
+              2,
+              3
+            ],
+            "PreserveAuthoredPrecision": true
+          },
+          {
+            "Type": 5,
+            "Area": 1,
+            "Key": "marcus.cc",
+            "StatusKind": 1,
+            "Duration": 1,
+            "PreserveAuthoredPrecision": true
+          },
+          {
+            "Type": 5,
+            "Area": 1,
+            "Key": "shock",
+            "Permanent": true,
+            "PreserveAuthoredPrecision": true
+          }
+        ],
+        "Execution": 1,
+        "CastSeconds": 0,
+        "FirstTriggerSeconds": 10,
+        "IntervalSeconds": 10,
+        "ResolvePerTarget": true
+      }
     },
     {
       "Id": "web.marcus.passive",
       "DisplayName": "전사의 투지",
-      "Implemented": false
+      "Implemented": true,
+      "Definition": {
+        "Id": "web.marcus.passive",
+        "Trigger": 6,
+        "Target": 1,
+        "Effects": [
+          {
+            "Type": 0,
+            "Anchor": 2,
+            "AttackRatioByStar": [
+              1.5,
+              2,
+              3.5
+            ],
+            "PreserveAuthoredPrecision": true
+          },
+          {
+            "Type": 5,
+            "Anchor": 2,
+            "Key": "marcus.cc",
+            "StatusKind": 1,
+            "Duration": 0.5,
+            "PreserveAuthoredPrecision": true
+          }
+        ],
+        "Execution": 1,
+        "CastSeconds": 0,
+        "RequiredHitStatus": "shock",
+        "ConsumeHitStatus": true
+      }
     },
     {
       "Id": "web.ian.active",
@@ -209,12 +275,79 @@
     {
       "Id": "web.kenneth.active",
       "DisplayName": "업화",
-      "Implemented": false
+      "Implemented": true,
+      "Definition": {
+        "Id": "web.kenneth.active",
+        "Trigger": 1,
+        "Target": 1,
+        "Effects": [
+          {
+            "Type": 2,
+            "AttackRatioByStar": [
+              1,
+              2,
+              4
+            ],
+            "PreserveAuthoredPrecision": true
+          },
+          {
+            "Type": 3,
+            "Stat": 0,
+            "BuffAmountByStar": [
+              0.2,
+              0.3,
+              0.6
+            ],
+            "Multiplicative": true,
+            "Duration": 5,
+            "Key": "kenneth.rage",
+            "PreserveAuthoredPrecision": true
+          },
+          {
+            "Type": 3,
+            "Stat": 3,
+            "BuffAmountByStar": [
+              0.2,
+              0.3,
+              0.6
+            ],
+            "Multiplicative": true,
+            "Duration": 5,
+            "Key": "kenneth.rage",
+            "PreserveAuthoredPrecision": true
+          }
+        ],
+        "Execution": 1,
+        "CastSeconds": 0,
+        "AttacksRequired": 5
+      }
     },
     {
       "Id": "web.kenneth.passive",
       "DisplayName": "억압된 분노",
-      "Implemented": false
+      "Implemented": true,
+      "Definition": {
+        "Id": "web.kenneth.passive",
+        "Trigger": 4,
+        "Target": 1,
+        "Effects": [
+          {
+            "Type": 3,
+            "Stat": 10,
+            "BuffAmountByStar": [
+              0.1,
+              0.15,
+              0.25
+            ],
+            "Permanent": true,
+            "Key": "kenneth.lifesteal",
+            "PreserveAuthoredPrecision": true
+          }
+        ],
+        "Execution": 1,
+        "CastSeconds": 0,
+        "OncePerCombat": true
+      }
     },
     {
       "Id": "web.irem.active",
@@ -309,12 +442,55 @@
     {
       "Id": "web.abigail.active",
       "DisplayName": "바이너리 스핀",
-      "Implemented": false
+      "Implemented": true,
+      "Definition": {
+        "Id": "web.abigail.active",
+        "Trigger": 1,
+        "Target": 1,
+        "Effects": [
+          {
+            "Type": 0,
+            "Area": 1,
+            "SkillRatioByStar": [
+              1,
+              1.5,
+              2.5
+            ],
+            "PreserveAuthoredPrecision": true
+          }
+        ],
+        "Execution": 1,
+        "CastSeconds": 0,
+        "AttacksRequired": 3,
+        "CountOnlySurvivingHits": true
+      }
     },
     {
       "Id": "web.abigail.passive",
       "DisplayName": "티어링 블레이드",
-      "Implemented": false
+      "Implemented": true,
+      "Definition": {
+        "Id": "web.abigail.passive",
+        "Trigger": 6,
+        "Target": 1,
+        "Effects": [
+          {
+            "Type": 3,
+            "Stat": 2,
+            "Anchor": 2,
+            "BuffAmountByStar": [
+              -0.05,
+              -0.08,
+              -0.15
+            ],
+            "Multiplicative": true,
+            "Permanent": true,
+            "PreserveAuthoredPrecision": true
+          }
+        ],
+        "Execution": 1,
+        "CastSeconds": 0
+      }
     },
     {
       "Id": "web.leny.active",
@@ -414,12 +590,68 @@
     {
       "Id": "web.sua.active",
       "DisplayName": "오딧세이",
-      "Implemented": false
+      "Implemented": true,
+      "Definition": {
+        "Id": "web.sua.active",
+        "Trigger": 5,
+        "Target": 0,
+        "Effects": [
+          {
+            "Type": 0,
+            "Area": 3,
+            "SkillRatioByStar": [
+              1.15,
+              1.6,
+              2.8
+            ],
+            "HealCasterRatioByStar": [
+              0.15,
+              0.25,
+              0.4
+            ],
+            "PreserveAuthoredPrecision": true
+          }
+        ],
+        "Execution": 1,
+        "CastSeconds": 0,
+        "FirstTriggerSeconds": 4,
+        "IntervalSeconds": 4,
+        "IgnoreRange": true,
+        "CanRunWhileControlled": true
+      }
     },
     {
       "Id": "web.sua.passive",
       "DisplayName": "마음의 양식",
-      "Implemented": false
+      "Implemented": true,
+      "Definition": {
+        "Id": "web.sua.passive",
+        "Trigger": 6,
+        "Target": 1,
+        "Effects": [
+          {
+            "Type": 0,
+            "Anchor": 2,
+            "SkillRatioByStar": [
+              0.25,
+              0.45,
+              0.85
+            ],
+            "PreserveAuthoredPrecision": true
+          },
+          {
+            "Type": 1,
+            "SourceMaxHealthRatioByStar": [
+              0.008,
+              0.015,
+              0.03
+            ],
+            "PreserveAuthoredPrecision": true
+          }
+        ],
+        "Execution": 1,
+        "CastSeconds": 0
+      }
     },
     {
       "Id": "web.johann.active",
