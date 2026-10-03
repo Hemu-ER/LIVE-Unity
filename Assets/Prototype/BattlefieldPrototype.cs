@@ -74,7 +74,7 @@ namespace LIVE.Prototype
         public static Vector3 Position(int row, int column) =>
             new Vector3((column - 2.5f) * Spacing, (1 - row) * Spacing, 0);
 
-        public PrototypeUnit CreateUnit(string faction, int row, int column, PrototypeCombatStats stats, string label, PrototypeAbilitySettings abilities = null)
+        public PrototypeUnit CreateUnit(string faction, int row, int column, PrototypeCombatStats stats, string label, PrototypeAbilitySettings abilities = null, int stars = 1)
         {
             Color color = faction == "A" ? TeamA : TeamB;
             var root = new GameObject(label + " / " + faction);
@@ -95,7 +95,7 @@ namespace LIVE.Prototype
             var unit = root.AddComponent<PrototypeUnit>();
             unit.Initialize(faction, row, column, stats, fill.transform, character);
             unit.DisplayLabel = label;
-            unit.ConfigureAbilities(abilities);
+            unit.ConfigureAbilities(abilities, stars);
             root.AddComponent<PrototypeUnitView>().Initialize(character, shield.transform, gauge.transform);
             return unit;
         }

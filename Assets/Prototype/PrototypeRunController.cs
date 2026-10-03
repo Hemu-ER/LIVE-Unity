@@ -83,11 +83,11 @@ namespace LIVE.Prototype
             {
                 if (owned.Location != PrototypeUnitLocation.Board) continue;
                 combatants.Add(battlefield.CreateUnit("A", owned.Row, owned.Column,
-                    Data.CombatStats(owned.DefinitionId, owned.Stars), Label(owned.DefinitionId, owned.Stars), Data.Definition(owned.DefinitionId).Abilities));
+                    Data.CombatStats(owned.DefinitionId, owned.Stars), Label(owned.DefinitionId, owned.Stars), Data.Definition(owned.DefinitionId).Abilities, owned.Stars));
             }
             foreach (var enemy in Run.Enemies.Units)
                 combatants.Add(battlefield.CreateUnit("B", enemy.Row, enemy.Column,
-                    Data.CombatStats(enemy.UnitId, enemy.Stars), Label(enemy.UnitId, enemy.Stars), Data.Definition(enemy.UnitId).Abilities));
+                    Data.CombatStats(enemy.UnitId, enemy.Stars), Label(enemy.UnitId, enemy.Stars), Data.Definition(enemy.UnitId).Abilities, enemy.Stars));
             battlefield.ConfigureCombat(combatants, unchecked(Run.Seed + Run.Round * 7919));
         }
 

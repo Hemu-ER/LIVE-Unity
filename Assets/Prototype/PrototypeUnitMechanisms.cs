@@ -1,0 +1,151 @@
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace LIVE.Prototype
+{
+    // Explicit opt-in extension boundary. No character-name branches or reflection-based handlers.
+    public interface IPrototypeSkillHandler
+    {
+        void Execute(PrototypeUnit caster, PrototypeUnit target, PrototypeSkillDefinition definition);
+    }
+
+    public sealed partial class PrototypeUnit
+    {
+        private sealed class Status
+        { public int Stacks; public double Expires; public PrototypeStatusKind Kind; }
+        private sealed class DelayedEffect
+        { public double Due; public PrototypeSkillDefinition Skill; public PrototypeSkillEffect Effect; public PrototypeUnit Anchor; }
+        private readonly Dictionary<string, Status> statuses = new Dictionary<string, Status>(StringComparer.Ordinal);
+        private readonly List<DelayedEffect> delayedEffects = new List<DelayedEffect>();
+        public int LastHealthDamage { get; private set; }
+        public bool IsControlled => HasStatus(PrototypeStatusKind.CrowdControl);
+        public double CombatAttackPower => Math.Max(0, ModifiedStat(stats.AttackPower, PrototypeBuffStat.AttackPower));
+        public double CombatDefense => Math.Max(0, ModifiedStat(stats.Defense, PrototypeBuffStat.Defense));
+        private double Now => combat == null ? 0 : combat.ElapsedSeconds;
+
+        public int StatusStacks(string key) => key != null && statuses.TryGetValue(key, out var status) && status.Expires > Now ? status.Stacks : 0;
+        public bool HasStatus(PrototypeStatusKind kind)
+        {
+            foreach (var status in statuses.Values)
+                if (status.Kind == kind && status.Stacks > 0 && status.Expires > Now) return true;
+            return false;
+        }
+
+        public void ApplyStatus(string key, int delta, int limit, float duration, PrototypeStatusKind kind = PrototypeStatusKind.Generic, bool permanent = false)
+        {
+            if (!IsAlive || string.IsNullOrEmpty(key) || limit < 1 || float.IsNaN(duration) || float.IsInfinity(duration) || (!permanent && duration <= 0)) return;
+            if (kind == PrototypeStatusKind.CrowdControl && HasStatus(PrototypeStatusKind.CrowdControlImmune)) return;
+            int count = (int)Math.Max(0, Math.Min(limit, (long)StatusStacks(key) + delta));
+            if (count == 0) { statuses.Remove(key); return; }
+            double expiry = permanent ? double.PositiveInfinity : Now + duration;
+            if (statuses.TryGetValue(key, out var previous)) expiry = Math.Max(expiry, previous.Expires);
+            statuses[key] = new Status { Stacks = count, Expires = expiry, Kind = kind };
+            if (kind == PrototypeStatusKind.CrowdControl) InterruptAction();
+        }
+
+        private void InterruptAction()
+        {
+            casting = null; castTarget = null; castRemaining = 0;
+            if (IsMoving)
+            {
+                combat.Grid.Release(this);
+                if (IsAlive) combat.Grid.Place(this, Cell);
+                transform.position = combat.WorldPosition(Cell);
+            }
+            IsMoving = false; attackFlash = 0;
+            if (character != null) character.localPosition = Vector3.zero;
+            ActionState = IsAlive ? PrototypeActionState.Idle : PrototypeActionState.Dead;
+        }
+
+        private double ModifiedStat(double basis, PrototypeBuffStat stat)
+        {
+            double multiplier = 1;
+            foreach (var buff in buffs)
+            {
+                if (buff.Stat != stat) continue;
+                if (buff.Multiplicative) multiplier *= Math.Max(0, 1 + buff.Amount);
+                else basis += buff.Amount;
+            }
+            return basis * multiplier;
+        }
+
+        private void TickMechanisms()
+        {
+            // Copy before resolving: effects may kill a unit and clear its pending work.
+            var due = delayedEffects.FindAll(effect => effect.Due <= Now + 0.000001);
+            delayedEffects.RemoveAll(effect => effect.Due <= Now + 0.000001);
+            foreach (var pending in due)
+                if (IsAlive && combat.State == PrototypeCombatState.Fighting && pending.Anchor != null && pending.Anchor.IsAlive)
+                    ApplyResolvedEffect(pending.Skill, pending.Effect, pending.Anchor);
+            foreach (var runtime in skills)
+                if (runtime.Definition.Execution == PrototypeSkillExecution.Instant && runtime.Definition.Trigger != PrototypeSkillTrigger.OnBasicHit &&
+                    runtime.Definition.Trigger != PrototypeSkillTrigger.OnLethalDamage) TryBeginCast(runtime);
+        }
+
+        private void FireReactiveSkills(PrototypeSkillTrigger trigger)
+        {
+            foreach (var runtime in skills)
+                if (runtime.Definition.Trigger == trigger) TryBeginCast(runtime, true);
+        }
+
+        private List<PrototypeUnit> EffectTargets(PrototypeSkillEffect effect, PrototypeUnit anchor)
+        {
+            if (effect.Area == PrototypeEffectArea.Single) return new List<PrototypeUnit> { anchor };
+            var result = new List<PrototypeUnit>();
+            foreach (var unit in combat.Units)
+            {
+                if (unit == null || !unit.IsAlive) continue;
+                bool ally = unit.Faction == Faction;
+                int distance = effect.ChebyshevRadius ? Mathf.Max(Mathf.Abs(unit.Row - anchor.Row), Mathf.Abs(unit.Column - anchor.Column)) : PrototypeCombatGrid.Distance(unit.Cell, anchor.Cell);
+                bool include = false;
+                switch (effect.Area)
+                {
+                    case PrototypeEffectArea.AllEnemies: include = !ally; break;
+                    case PrototypeEffectArea.AllAllies: include = ally; break;
+                    case PrototypeEffectArea.TargetRow: include = !ally && unit.Row == anchor.Row; break;
+                    case PrototypeEffectArea.TargetColumn: include = !ally && unit.Column == anchor.Column; break;
+                    case PrototypeEffectArea.AdjacentEnemies: include = !ally && distance <= effect.Radius; break;
+                    case PrototypeEffectArea.NearbyAllies: include = ally && distance <= effect.Radius; break;
+                }
+                if (include) result.Add(unit);
+            }
+            result.Sort((a, b) => string.CompareOrdinal(a.CombatId, b.CombatId));
+            return result;
+        }
+
+        private void ApplyResolvedEffect(PrototypeSkillDefinition skill, PrototypeSkillEffect effect, PrototypeUnit anchor)
+        {
+            long healthDamage = 0;
+            foreach (var target in EffectTargets(effect, anchor))
+            {
+                if (!IsAlive || combat.State != PrototypeCombatState.Fighting) break;
+                if (target == null || !target.IsAlive) continue;
+                var effective = EffectiveStats;
+                double raw = PrototypeDamageCalculator.Coefficients(effect, CombatAttackPower, effective.SkillAmplification, MaxHealth, target.MaxHealth, target.CurrentHealth);
+                switch (effect.Type)
+                {
+                    case PrototypeSkillEffectType.Damage:
+                        if (effect.Area == PrototypeEffectArea.Single && !InSkillRange(skill, target)) break;
+                        int damage = effect.TrueDamage ? PrototypeDamageCalculator.RoundAmount(raw, 1) :
+                            PrototypeDamageCalculator.Mitigate(raw, target.CombatDefense, effective.DefensePenetration);
+                        target.ReceiveDamage(damage, this, false, skill.Id);
+                        healthDamage += target.LastHealthDamage;
+                        break;
+                    case PrototypeSkillEffectType.Heal: target.ApplyHeal(PrototypeDamageCalculator.RoundAmount(raw), this); break;
+                    case PrototypeSkillEffectType.Shield: target.ApplyShield(PrototypeDamageCalculator.RoundAmount(raw), this); break;
+                    case PrototypeSkillEffectType.StatBuff: target.ApplyBuff(effect); break;
+                    case PrototypeSkillEffectType.Dash: DashToward(target, effect.DashCells, skill.Id); break;
+                    case PrototypeSkillEffectType.Status: target.ApplyStatus(effect.Key, effect.StackDelta, effect.StackLimit, effect.Duration, effect.StatusKind, effect.Permanent); break;
+                    case PrototypeSkillEffectType.Execute:
+                        // Web Garnet's execute is a direct death after its threshold check, not damage.
+                        if ((float)target.CurrentHealth / target.MaxHealth <= effect.ExecuteThreshold)
+                        { Statistics.Kills++; target.SetHealth(0); }
+                        break;
+                }
+            }
+            if (effect.HealCasterRatio > 0 && combat.State == PrototypeCombatState.Fighting)
+                ApplyHeal(PrototypeDamageCalculator.RoundAmount(healthDamage * (double)effect.HealCasterRatio), this);
+        }
+    }
+}

@@ -3,10 +3,13 @@ using System;
 namespace LIVE.Prototype
 {
     public enum PrototypeArchetype { Fighter, RangedAttack, RangedSkill, Tank, MeleeSkill, Assassin, Support, PveReference }
-    public enum PrototypeSkillTrigger { GaugeFull, AfterNAttacks, HealthBelowPercent, OnKill, OnCombatStart }
+    public enum PrototypeSkillTrigger { GaugeFull, AfterNAttacks, HealthBelowPercent, OnKill, OnCombatStart, Periodic, OnBasicHit, StatusAtLeast, OnLethalDamage }
     public enum PrototypeSkillTarget { CurrentTarget, Self, LowestHealthAlly }
-    public enum PrototypeSkillEffectType { Damage, Heal, Shield, StatBuff, Dash }
-    public enum PrototypeBuffStat { AttackPower, SkillAmplification, Defense, AttackSpeed, CriticalChance, DefensePenetration, MoveSpeed, NextAttackMultiplier }
+    public enum PrototypeSkillEffectType { Damage, Heal, Shield, StatBuff, Dash, Status, Execute }
+    public enum PrototypeBuffStat { AttackPower, SkillAmplification, Defense, AttackSpeed, CriticalChance, DefensePenetration, MoveSpeed, NextAttackMultiplier, DamageReduction, BasicDamageReduction, Lifesteal }
+    public enum PrototypeSkillExecution { Cast, Instant }
+    public enum PrototypeEffectArea { Single, AllEnemies, AllAllies, TargetRow, TargetColumn, AdjacentEnemies, NearbyAllies }
+    public enum PrototypeStatusKind { Generic, CrowdControl, Invulnerable, Immortal, CrowdControlImmune }
     public enum PrototypeActionState { Idle, Moving, BasicAttacking, Casting, Dead }
 
     [Serializable]
@@ -21,6 +24,17 @@ namespace LIVE.Prototype
         public float Duration = 3;
         public bool ConsumeOnAttack;
         public int DashCells = 2;
+        public PrototypeEffectArea Area;
+        public int Radius = 1;
+        public bool ChebyshevRadius;
+        public bool Multiplicative, Permanent, TrueDamage;
+        public string Key;
+        public float DelaySeconds;
+        public float SourceMaxHealthRatio, TargetMaxHealthRatio, TargetCurrentHealthRatio, HealCasterRatio;
+        public PrototypeStatusKind StatusKind;
+        public int StackDelta = 1, StackLimit = 1;
+        public float ExecuteThreshold;
+        public float[] AttackRatioByStar, SkillRatioByStar, BuffAmountByStar;
     }
 
     [Serializable]
@@ -36,6 +50,11 @@ namespace LIVE.Prototype
         // 0 uses the caster's AttackRange. Self/ally effects do not require enemy range.
         public int Range;
         public PrototypeSkillEffect[] Effects = Array.Empty<PrototypeSkillEffect>();
+        public PrototypeSkillExecution Execution;
+        public float FirstTriggerSeconds, IntervalSeconds = 1, CooldownSeconds;
+        public bool CanRunWhileControlled;
+        public string RequiredStatus, CustomHandlerKey;
+        public int RequiredStacks = 1;
     }
 
     [Serializable]
@@ -54,6 +73,7 @@ namespace LIVE.Prototype
         public int CastCount { get; internal set; }
         internal int LastAttackCount;
         internal int LastKillCount;
+        internal double NextTriggerAt, NextReadyAt;
         public PrototypeSkillRuntime(PrototypeSkillDefinition definition) { Definition = definition; }
     }
 
@@ -63,5 +83,7 @@ namespace LIVE.Prototype
         internal float Amount;
         internal float Remaining;
         internal bool ConsumeOnAttack;
+        internal bool Multiplicative, Permanent;
+        internal string Key;
     }
 }

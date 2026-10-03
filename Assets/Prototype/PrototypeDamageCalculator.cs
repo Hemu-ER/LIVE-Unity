@@ -16,6 +16,9 @@ namespace LIVE.Prototype
         }
         public static double Coefficients(PrototypeSkillEffect effect, PrototypeCombatStats stats) =>
             Math.Max(0, effect.BaseDamage + stats.AttackPower * (double)effect.AttackRatio + stats.SkillAmplification * (double)effect.SkillRatio);
+        public static double Coefficients(PrototypeSkillEffect effect, double attack, double amplification, int sourceMaxHealth, int targetMaxHealth, int targetHealth) =>
+            Math.Max(0, effect.BaseDamage + attack * effect.AttackRatio + amplification * effect.SkillRatio +
+                sourceMaxHealth * (double)effect.SourceMaxHealthRatio + targetMaxHealth * (double)effect.TargetMaxHealthRatio + targetHealth * (double)effect.TargetCurrentHealthRatio);
         public static int RoundAmount(double amount, int minimum = 0) =>
             double.IsNaN(amount) ? minimum : (int)Math.Max(minimum, Math.Min(int.MaxValue, Math.Floor(amount + 0.5)));
         public static bool RollCritical(float chance, PrototypeRandom random) =>

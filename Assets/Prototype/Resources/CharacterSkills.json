@@ -1,0 +1,542 @@
+{
+  "SourceCommit": "2e4b699e961d43984ff0eba88d691038ea163560",
+  "Definitions": [
+    {
+      "Id": "web.hyunwoo.active",
+      "DisplayName": "도그파이트",
+      "Implemented": false
+    },
+    {
+      "Id": "web.hyunwoo.passive",
+      "DisplayName": "허세",
+      "Implemented": false
+    },
+    {
+      "Id": "web.adela.active",
+      "DisplayName": "체크메이트",
+      "Implemented": false
+    },
+    {
+      "Id": "web.adela.passive",
+      "DisplayName": "프로모션",
+      "Implemented": false
+    },
+    {
+      "Id": "web.dailin.active",
+      "DisplayName": "만취",
+      "Implemented": false
+    },
+    {
+      "Id": "web.dailin.passive",
+      "DisplayName": "취기",
+      "Implemented": false
+    },
+    {
+      "Id": "web.yuki.active",
+      "DisplayName": "머리치기!",
+      "Implemented": false
+    },
+    {
+      "Id": "web.yuki.passive",
+      "DisplayName": "옷매무새 정리",
+      "Implemented": false
+    },
+    {
+      "Id": "web.rio.active",
+      "DisplayName": "정사필중",
+      "Implemented": false
+    },
+    {
+      "Id": "web.rio.passive",
+      "DisplayName": "카에유미",
+      "Implemented": false
+    },
+    {
+      "Id": "web.justina.active",
+      "DisplayName": "섬멸 포격",
+      "Implemented": false
+    },
+    {
+      "Id": "web.justina.passive",
+      "DisplayName": "부스트 대쉬",
+      "Implemented": false
+    },
+    {
+      "Id": "web.jenny.active",
+      "DisplayName": "페르소나",
+      "Implemented": false
+    },
+    {
+      "Id": "web.jenny.passive",
+      "DisplayName": "죽음의 연기",
+      "Implemented": false
+    },
+    {
+      "Id": "web.nicky.active",
+      "DisplayName": "다혈질",
+      "Implemented": false
+    },
+    {
+      "Id": "web.nicky.passive",
+      "DisplayName": "가드&카운터",
+      "Implemented": false
+    },
+    {
+      "Id": "web.shurin.active",
+      "DisplayName": "만검귀종",
+      "Implemented": false
+    },
+    {
+      "Id": "web.shurin.passive",
+      "DisplayName": "결심응진",
+      "Implemented": false
+    },
+    {
+      "Id": "web.marcus.active",
+      "DisplayName": "지각변동",
+      "Implemented": false
+    },
+    {
+      "Id": "web.marcus.passive",
+      "DisplayName": "전사의 투지",
+      "Implemented": false
+    },
+    {
+      "Id": "web.ian.active",
+      "DisplayName": "해방",
+      "Implemented": false
+    },
+    {
+      "Id": "web.ian.passive",
+      "DisplayName": "사로잡힌 육신",
+      "Implemented": false
+    },
+    {
+      "Id": "web.yumin.active",
+      "DisplayName": "풍류운산",
+      "Implemented": false
+    },
+    {
+      "Id": "web.yumin.passive",
+      "DisplayName": "선풍",
+      "Implemented": false
+    },
+    {
+      "Id": "web.debi-marlene.active",
+      "DisplayName": "트윈즈 러시",
+      "Implemented": false
+    },
+    {
+      "Id": "web.debi-marlene.passive",
+      "DisplayName": "블루&레드",
+      "Implemented": false
+    },
+    {
+      "Id": "web.garnet.active",
+      "DisplayName": "처형식",
+      "Implemented": false
+    },
+    {
+      "Id": "web.garnet.passive",
+      "DisplayName": "익숙한 아픔",
+      "Implemented": false
+    },
+    {
+      "Id": "web.kenneth.active",
+      "DisplayName": "업화",
+      "Implemented": false
+    },
+    {
+      "Id": "web.kenneth.passive",
+      "DisplayName": "억압된 분노",
+      "Implemented": false
+    },
+    {
+      "Id": "web.irem.active",
+      "DisplayName": "냥냥 펀치",
+      "Implemented": false
+    },
+    {
+      "Id": "web.irem.passive",
+      "DisplayName": "고양이의 습성",
+      "Implemented": false
+    },
+    {
+      "Id": "web.laura.active",
+      "DisplayName": "황혼의 도둑",
+      "Implemented": false
+    },
+    {
+      "Id": "web.laura.passive",
+      "DisplayName": "괴도",
+      "Implemented": false
+    },
+    {
+      "Id": "web.bianca.active",
+      "DisplayName": "진조의 군림",
+      "Implemented": false
+    },
+    {
+      "Id": "web.bianca.passive",
+      "DisplayName": "짧은 안식",
+      "Implemented": false
+    },
+    {
+      "Id": "web.cathy.active",
+      "DisplayName": "이머전시OP",
+      "Implemented": false
+    },
+    {
+      "Id": "web.cathy.passive",
+      "DisplayName": "외과 전문의",
+      "Implemented": false
+    },
+    {
+      "Id": "web.abigail.active",
+      "DisplayName": "바이너리 스핀",
+      "Implemented": false
+    },
+    {
+      "Id": "web.abigail.passive",
+      "DisplayName": "티어링 블레이드",
+      "Implemented": false
+    },
+    {
+      "Id": "web.leny.active",
+      "DisplayName": "스프링! 트랩",
+      "Implemented": false
+    },
+    {
+      "Id": "web.leny.passive",
+      "DisplayName": "당근! 바주카",
+      "Implemented": false
+    },
+    {
+      "Id": "web.hart.active",
+      "DisplayName": "Peacemaker",
+      "Implemented": false
+    },
+    {
+      "Id": "web.hart.passive",
+      "DisplayName": "Feedback",
+      "Implemented": false
+    },
+    {
+      "Id": "web.isol.active",
+      "DisplayName": "Mok제 폭탄",
+      "Implemented": true,
+      "Definition": {
+        "Id": "web.isol.active",
+        "Trigger": 5,
+        "Target": 1,
+        "Execution": 1,
+        "CanRunWhileControlled": true,
+        "FirstTriggerSeconds": 10,
+        "IntervalSeconds": 10,
+        "CastSeconds": 0,
+        "Effects": [
+          {
+            "Type": 0,
+            "Area": 1,
+            "AttackRatioByStar": [
+              1,
+              1.5,
+              2.5
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "Id": "web.isol.passive",
+      "DisplayName": "유격전",
+      "Implemented": true,
+      "Definition": {
+        "Id": "web.isol.passive",
+        "Trigger": 4,
+        "Target": 1,
+        "Execution": 1,
+        "OncePerCombat": true,
+        "CastSeconds": 0,
+        "Effects": [
+          {
+            "Type": 3,
+            "Stat": 0,
+            "Multiplicative": true,
+            "Permanent": true,
+            "Key": "isol.start",
+            "BuffAmountByStar": [
+              0.15,
+              0.25,
+              0.5
+            ]
+          },
+          {
+            "Type": 3,
+            "Stat": 3,
+            "Multiplicative": true,
+            "Permanent": true,
+            "Key": "isol.start",
+            "BuffAmountByStar": [
+              0.15,
+              0.25,
+              0.5
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "Id": "web.chloe.active",
+      "DisplayName": "생명 공유",
+      "Implemented": false
+    },
+    {
+      "Id": "web.chloe.passive",
+      "DisplayName": "살아 있는 마리오네트",
+      "Implemented": false
+    },
+    {
+      "Id": "web.sua.active",
+      "DisplayName": "오딧세이",
+      "Implemented": false
+    },
+    {
+      "Id": "web.sua.passive",
+      "DisplayName": "마음의 양식",
+      "Implemented": false
+    },
+    {
+      "Id": "web.johann.active",
+      "DisplayName": "구원의 성역",
+      "Implemented": false
+    },
+    {
+      "Id": "web.johann.passive",
+      "DisplayName": "빛의 가호",
+      "Implemented": false
+    },
+    {
+      "Id": "web.nadine.active",
+      "DisplayName": "늑대 맹습",
+      "Implemented": false
+    },
+    {
+      "Id": "web.nadine.passive",
+      "DisplayName": "야성",
+      "Implemented": false
+    },
+    {
+      "Id": "web.bernice.active",
+      "DisplayName": "레그샷",
+      "Implemented": false
+    },
+    {
+      "Id": "web.bernice.passive",
+      "DisplayName": "산탄",
+      "Implemented": false
+    },
+    {
+      "Id": "web.rozzi.active",
+      "DisplayName": "셈텍스탄 Mk-II",
+      "Implemented": false
+    },
+    {
+      "Id": "web.rozzi.passive",
+      "DisplayName": "더블샷",
+      "Implemented": false
+    },
+    {
+      "Id": "web.aya.active",
+      "DisplayName": "공포탄",
+      "Implemented": false
+    },
+    {
+      "Id": "web.aya.passive",
+      "DisplayName": "고정 사격",
+      "Implemented": false
+    },
+    {
+      "Id": "web.mirka.active",
+      "DisplayName": "크래시 해머",
+      "Implemented": false
+    },
+    {
+      "Id": "web.mirka.passive",
+      "DisplayName": "리펄스 게이지",
+      "Implemented": false
+    },
+    {
+      "Id": "web.charlotte.active",
+      "DisplayName": "기적 실현",
+      "Implemented": false
+    },
+    {
+      "Id": "web.charlotte.passive",
+      "DisplayName": "치유의 빛",
+      "Implemented": false
+    }
+  ],
+  "Characters": [
+    {
+      "CharacterId": "hyunwoo",
+      "ActiveId": "web.hyunwoo.active",
+      "PassiveId": "web.hyunwoo.passive"
+    },
+    {
+      "CharacterId": "adela",
+      "ActiveId": "web.adela.active",
+      "PassiveId": "web.adela.passive"
+    },
+    {
+      "CharacterId": "dailin",
+      "ActiveId": "web.dailin.active",
+      "PassiveId": "web.dailin.passive"
+    },
+    {
+      "CharacterId": "yuki",
+      "ActiveId": "web.yuki.active",
+      "PassiveId": "web.yuki.passive"
+    },
+    {
+      "CharacterId": "rio",
+      "ActiveId": "web.rio.active",
+      "PassiveId": "web.rio.passive"
+    },
+    {
+      "CharacterId": "justina",
+      "ActiveId": "web.justina.active",
+      "PassiveId": "web.justina.passive"
+    },
+    {
+      "CharacterId": "jenny",
+      "ActiveId": "web.jenny.active",
+      "PassiveId": "web.jenny.passive"
+    },
+    {
+      "CharacterId": "nicky",
+      "ActiveId": "web.nicky.active",
+      "PassiveId": "web.nicky.passive"
+    },
+    {
+      "CharacterId": "shurin",
+      "ActiveId": "web.shurin.active",
+      "PassiveId": "web.shurin.passive"
+    },
+    {
+      "CharacterId": "marcus",
+      "ActiveId": "web.marcus.active",
+      "PassiveId": "web.marcus.passive"
+    },
+    {
+      "CharacterId": "ian",
+      "ActiveId": "web.ian.active",
+      "PassiveId": "web.ian.passive"
+    },
+    {
+      "CharacterId": "yumin",
+      "ActiveId": "web.yumin.active",
+      "PassiveId": "web.yumin.passive"
+    },
+    {
+      "CharacterId": "debi-marlene",
+      "ActiveId": "web.debi-marlene.active",
+      "PassiveId": "web.debi-marlene.passive"
+    },
+    {
+      "CharacterId": "garnet",
+      "ActiveId": "web.garnet.active",
+      "PassiveId": "web.garnet.passive"
+    },
+    {
+      "CharacterId": "kenneth",
+      "ActiveId": "web.kenneth.active",
+      "PassiveId": "web.kenneth.passive"
+    },
+    {
+      "CharacterId": "irem",
+      "ActiveId": "web.irem.active",
+      "PassiveId": "web.irem.passive"
+    },
+    {
+      "CharacterId": "laura",
+      "ActiveId": "web.laura.active",
+      "PassiveId": "web.laura.passive"
+    },
+    {
+      "CharacterId": "bianca",
+      "ActiveId": "web.bianca.active",
+      "PassiveId": "web.bianca.passive"
+    },
+    {
+      "CharacterId": "cathy",
+      "ActiveId": "web.cathy.active",
+      "PassiveId": "web.cathy.passive"
+    },
+    {
+      "CharacterId": "abigail",
+      "ActiveId": "web.abigail.active",
+      "PassiveId": "web.abigail.passive"
+    },
+    {
+      "CharacterId": "leny",
+      "ActiveId": "web.leny.active",
+      "PassiveId": "web.leny.passive"
+    },
+    {
+      "CharacterId": "hart",
+      "ActiveId": "web.hart.active",
+      "PassiveId": "web.hart.passive"
+    },
+    {
+      "CharacterId": "isol",
+      "ActiveId": "web.isol.active",
+      "PassiveId": "web.isol.passive"
+    },
+    {
+      "CharacterId": "chloe",
+      "ActiveId": "web.chloe.active",
+      "PassiveId": "web.chloe.passive"
+    },
+    {
+      "CharacterId": "sua",
+      "ActiveId": "web.sua.active",
+      "PassiveId": "web.sua.passive"
+    },
+    {
+      "CharacterId": "johann",
+      "ActiveId": "web.johann.active",
+      "PassiveId": "web.johann.passive"
+    },
+    {
+      "CharacterId": "nadine",
+      "ActiveId": "web.nadine.active",
+      "PassiveId": "web.nadine.passive"
+    },
+    {
+      "CharacterId": "bernice",
+      "ActiveId": "web.bernice.active",
+      "PassiveId": "web.bernice.passive"
+    },
+    {
+      "CharacterId": "rozzi",
+      "ActiveId": "web.rozzi.active",
+      "PassiveId": "web.rozzi.passive"
+    },
+    {
+      "CharacterId": "aya",
+      "ActiveId": "web.aya.active",
+      "PassiveId": "web.aya.passive"
+    },
+    {
+      "CharacterId": "mirka",
+      "ActiveId": "web.mirka.active",
+      "PassiveId": "web.mirka.passive"
+    },
+    {
+      "CharacterId": "charlotte",
+      "ActiveId": "web.charlotte.active",
+      "PassiveId": "web.charlotte.passive"
+    }
+  ]
+}

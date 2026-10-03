@@ -39,6 +39,8 @@ namespace LIVE.Prototype
             // Retain the existing Unity economy, pool, growth and enemy formation rules.
             var data = PrototypeGameData.Load();
             data.Units = Entries.Select(Convert).ToArray();
+            var skills = PrototypeCharacterSkills.Load();
+            foreach (var unit in data.Units) if (unit.Playable) skills.Attach(unit);
             string[] enemyMapping = { "hyunwoo", "kenneth", "abigail", "adela", "yuki", "rio", "dailin", "nicky", "shurin" };
             foreach (var round in data.EnemyRounds)
                 foreach (var enemy in round.Units)

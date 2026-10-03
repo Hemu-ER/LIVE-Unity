@@ -155,6 +155,7 @@ namespace LIVE.Prototype
                     !Finite(skill.HealthThreshold) || skill.HealthThreshold < 0 || skill.HealthThreshold > 1 ||
                     skill.Effects == null || skill.Effects.Length == 0)
                     throw new InvalidOperationException("Invalid skill: " + unit.Id);
+                ValidateMechanisms(skill);
                 foreach (var effect in skill.Effects)
                     if (effect == null || !Enum.IsDefined(typeof(PrototypeSkillEffectType), effect.Type) ||
                         !Enum.IsDefined(typeof(PrototypeBuffStat), effect.Stat) ||
@@ -163,6 +164,38 @@ namespace LIVE.Prototype
                         !Finite(effect.SkillRatio) || effect.SkillRatio < 0 ||
                         !Finite(effect.BuffAmount) || !Finite(effect.Duration) || effect.Duration <= 0 || effect.DashCells < 0)
                         throw new InvalidOperationException("Invalid effect: " + skill.Id);
+            }
+        }
+
+        public static void ValidateMechanisms(PrototypeSkillDefinition skill)
+        {
+            if (!Enum.IsDefined(typeof(PrototypeSkillExecution), skill.Execution) ||
+                !Finite(skill.FirstTriggerSeconds) || skill.FirstTriggerSeconds < 0 ||
+                !Finite(skill.IntervalSeconds) || skill.IntervalSeconds <= 0 ||
+                !Finite(skill.CooldownSeconds) || skill.CooldownSeconds < 0 ||
+                (skill.Trigger == PrototypeSkillTrigger.StatusAtLeast && (string.IsNullOrEmpty(skill.RequiredStatus) || skill.RequiredStacks < 1)) ||
+                ((skill.Trigger == PrototypeSkillTrigger.OnBasicHit || skill.Trigger == PrototypeSkillTrigger.OnLethalDamage) && skill.Execution != PrototypeSkillExecution.Instant) ||
+                (skill.Trigger == PrototypeSkillTrigger.OnLethalDamage && (!skill.OncePerCombat || skill.Target != PrototypeSkillTarget.Self)))
+                throw new InvalidOperationException("Invalid trigger configuration: " + skill.Id);
+            foreach (var effect in skill.Effects)
+            {
+                if (!Enum.IsDefined(typeof(PrototypeEffectArea), effect.Area) || !Enum.IsDefined(typeof(PrototypeStatusKind), effect.StatusKind) ||
+                    effect.Radius < 0 || !Finite(effect.DelaySeconds) || effect.DelaySeconds < 0 ||
+                    !Finite(effect.SourceMaxHealthRatio) || effect.SourceMaxHealthRatio < 0 ||
+                    !Finite(effect.TargetMaxHealthRatio) || effect.TargetMaxHealthRatio < 0 ||
+                    !Finite(effect.TargetCurrentHealthRatio) || effect.TargetCurrentHealthRatio < 0 ||
+                    !Finite(effect.HealCasterRatio) || effect.HealCasterRatio < 0 ||
+                    !Finite(effect.ExecuteThreshold) || effect.ExecuteThreshold < 0 || effect.ExecuteThreshold > 1 ||
+                    (effect.Type == PrototypeSkillEffectType.Status && (string.IsNullOrEmpty(effect.Key) || effect.StackLimit < 1)) ||
+                    (skill.Trigger == PrototypeSkillTrigger.OnLethalDamage && (effect.Area != PrototypeEffectArea.Single || effect.DelaySeconds > 0 ||
+                        (effect.Type != PrototypeSkillEffectType.Heal && effect.Type != PrototypeSkillEffectType.Status && effect.Type != PrototypeSkillEffectType.StatBuff))))
+                    throw new InvalidOperationException("Invalid mechanism effect: " + skill.Id);
+                foreach (var values in new[] { effect.AttackRatioByStar, effect.SkillRatioByStar, effect.BuffAmountByStar })
+                {
+                    if (values == null || values.Length == 0) continue;
+                    if (values.Length != 3) throw new InvalidOperationException("Expected three star coefficients: " + skill.Id);
+                    foreach (float value in values) if (!Finite(value)) throw new InvalidOperationException("Nonfinite star coefficient");
+                }
             }
         }
 

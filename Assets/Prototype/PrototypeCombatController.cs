@@ -19,6 +19,8 @@ namespace LIVE.Prototype
         public float StallThresholdSeconds { get; set; } = 5f;
         private int randomSeed;
         public PrototypeRandom Random { get; private set; }
+        public double ElapsedSeconds { get; private set; }
+        public readonly Dictionary<string, IPrototypeSkillHandler> SkillHandlers = new Dictionary<string, IPrototypeSkillHandler>(StringComparer.Ordinal);
         public event Action<PrototypeCombatEvent> EventRaised;
         public PrototypeCombatState State { get; private set; } = PrototypeCombatState.Ready;
         public string Winner { get; private set; }
@@ -68,6 +70,7 @@ namespace LIVE.Prototype
             }
             CheckOutcome();
             // Battle-stable identity order, independent of registration/MonoBehaviour update order.
+            ElapsedSeconds += seconds;
             quietSeconds += seconds;
             foreach (var unit in actionOrder)
             {
@@ -102,6 +105,7 @@ namespace LIVE.Prototype
             State = PrototypeCombatState.Ready;
             Winner = null;
             readyElapsed = 0;
+            ElapsedSeconds = 0;
             quietSeconds = 0; StallCount = 0; LastStallDiagnostic = null;
             Random = new PrototypeRandom(randomSeed);
             Grid.Clear();
