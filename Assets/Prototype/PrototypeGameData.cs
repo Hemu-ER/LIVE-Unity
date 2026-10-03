@@ -177,6 +177,8 @@ namespace LIVE.Prototype
                 ((skill.Trigger == PrototypeSkillTrigger.OnBasicHit || skill.Trigger == PrototypeSkillTrigger.OnLethalDamage) && skill.Execution != PrototypeSkillExecution.Instant) ||
                 (skill.Trigger == PrototypeSkillTrigger.OnLethalDamage && (!skill.OncePerCombat || skill.Target != PrototypeSkillTarget.Self)))
                 throw new InvalidOperationException("Invalid trigger configuration: " + skill.Id);
+            if (skill.ReserveNextBasic && (skill.Trigger != PrototypeSkillTrigger.AfterNAttacks || skill.Execution != PrototypeSkillExecution.Instant || skill.Target != PrototypeSkillTarget.Self))
+                throw new InvalidOperationException("Next basic reservation requires instant attack-count/self definition");
             if ((!string.IsNullOrEmpty(skill.RequiredHitStatus) && (skill.Trigger != PrototypeSkillTrigger.OnBasicHit || skill.RequiredStacks < 1)) ||
                 (skill.ConsumeHitStatus && string.IsNullOrEmpty(skill.RequiredHitStatus)) ||
                 (skill.CountOnlySurvivingHits && skill.Trigger != PrototypeSkillTrigger.AfterNAttacks))
@@ -188,7 +190,7 @@ namespace LIVE.Prototype
                 if (skill.ResolvePerTarget && (effect.DelaySeconds != 0 || effect.Area != skill.Effects[0].Area || effect.Radius != skill.Effects[0].Radius || effect.ChebyshevRadius != skill.Effects[0].ChebyshevRadius))
                     throw new InvalidOperationException("Per-target effects require a shared selector and no delay");
                 if (!Enum.IsDefined(typeof(PrototypeEffectAnchor), effect.Anchor) ||
-                    (effect.Anchor == PrototypeEffectAnchor.BasicHitTarget && (skill.Trigger != PrototypeSkillTrigger.OnBasicHit || effect.DelaySeconds != 0)))
+                    (effect.Anchor == PrototypeEffectAnchor.BasicHitTarget && ((skill.Trigger != PrototypeSkillTrigger.OnBasicHit && !skill.ReserveNextBasic) || effect.DelaySeconds != 0)))
                     throw new InvalidOperationException("Basic-hit anchor requires immediate hit trigger");
                 if (!Enum.IsDefined(typeof(PrototypeEffectArea), effect.Area) || !Enum.IsDefined(typeof(PrototypeStatusKind), effect.StatusKind) ||
                     effect.Radius < 0 || !Finite(effect.DelaySeconds) || effect.DelaySeconds < 0 ||

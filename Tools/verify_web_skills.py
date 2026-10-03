@@ -23,9 +23,11 @@ assert active["FirstTriggerSeconds"] == active["IntervalSeconds"] == 10
 assert "isolNext:10" in engine and "u.skill.isolNext+=10" in engine
 assert "currentAtk(u)*(u.coefficients.bomb||1)" in engine
 assert "u.atk*=1+(u.coefficients.start||.15);u.as*=1+(u.coefficients.start||.15)" in engine
-assert sum(bool(e["Implemented"]) for e in entries.values()) == 16
+assert sum(bool(e["Implemented"]) for e in entries.values()) == 20
 
 for character, mapping in {
+    "jenny": {"persona": ("active",0,"SkillRatioByStar"),"revive": ("passive",0,"SourceMaxHealthRatioByStar"),"reviveAs": ("passive",2,"BuffAmountByStar")},
+    "ian": {"revive": ("active",0,"SourceMaxHealthRatioByStar"),"reviveAs": ("active",2,"BuffAmountByStar"),"lifesteal": ("active",3,"BuffAmountByStar")},
     "kenneth": {"shield": ("active", 0, "AttackRatioByStar"), "rage": ("active", 1, "BuffAmountByStar"), "lifesteal": ("passive", 0, "BuffAmountByStar")},
     "abigail": {"spin": ("active", 0, "SkillRatioByStar"), "shred": ("passive", 0, "BuffAmountByStar")},
     "sua": {"odyssey": ("active", 0, "SkillRatioByStar"), "lifesteal": ("active", 0, "HealCasterRatioByStar"), "mind": ("passive", 0, "SkillRatioByStar"), "heal": ("passive", 1, "SourceMaxHealthRatioByStar")},
@@ -49,4 +51,12 @@ assert "if(u.name==='아비게일'&&!t.dead)" in engine
 assert "u.name==='마커스'&&t.shock&&!t.dead" in engine and "t.shock=false" in engine
 assert "u.nextQuake&&u.ccUntil<=time" in engine
 assert "u.skill.nextSua+=4" in engine and "total+=damage" in engine
-print("WEB_SKILL_SOURCE_CHECK_PASSED: 8 executable character coefficient sets and relevant engine trigger rules")
+assert "dst.as*=1+(dst.coefficients.reviveAs||0)" in engine
+assert "dst.skill.invulnUntil=time+1.5" in engine
+assert "u.skill.ianRevived?1.2:.8" in engine
+assert "if(u.skill.personaReady){u.skill.personaReady=false" in engine
+assert "u.basicCount>=2){u.basicCount=0;u.skill.personaReady=true}" in engine
+assert entries["web.jenny.passive"]["Definition"]["Effects"][2]["Permanent"]
+assert entries["web.jenny.active"]["Definition"]["ReserveNextBasic"]
+assert entries["web.ian.passive"]["Definition"]["Effects"][0]["Key"] == entries["web.ian.active"]["Definition"]["Effects"][1]["Key"]
+print("WEB_SKILL_SOURCE_CHECK_PASSED: 10 executable character coefficient sets; Jenny/Ian permanent state and reservation rules")

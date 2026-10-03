@@ -15,6 +15,7 @@ namespace LIVE.Prototype
         private bool combatStarted;
         private PrototypeUnit basicHitTarget;
         private int survivingBasicHits;
+        private bool resolvingLethalDamage;
         public PrototypeActionState ActionState { get; private set; }
         public float SkillGauge { get; private set; }
         public float MaxSkillGauge => Mathf.Max(1, abilities.MaxSkillGauge);
@@ -45,7 +46,7 @@ namespace LIVE.Prototype
         private void ResetAbilities()
         {
             skills.Clear(); statuses.Clear(); delayedEffects.Clear(); LastHealthDamage = 0;
-            basicHitTarget = null; survivingBasicHits = 0;
+            basicHitTarget = null; survivingBasicHits = 0; resolvingLethalDamage = false;
             foreach (var definition in abilities.Skills ?? Array.Empty<PrototypeSkillDefinition>())
                 skills.Add(new PrototypeSkillRuntime(definition) { NextTriggerAt = definition.FirstTriggerSeconds });
             buffs.Clear(); casting = null; castTarget = null; castRemaining = 0;
@@ -160,6 +161,14 @@ namespace LIVE.Prototype
             if (!IsAlive || combat.State != PrototypeCombatState.Fighting ||
                 (IsControlled && !runtime.Definition.CanRunWhileControlled) || Now + 0.000001 < runtime.NextReadyAt ||
                 (runtime.Definition.OncePerCombat && runtime.CastCount > 0) || (!reactive && !TriggerReady(runtime))) return false;
+            if (runtime.Definition.ReserveNextBasic && !reactive)
+            {
+                if (runtime.NextBasicReserved) return false;
+                runtime.NextBasicReserved = true;
+                runtime.LastAttackCount = runtime.Definition.CountOnlySurvivingHits ? survivingBasicHits : Statistics.BasicAttackCount;
+                combat.Publish(new PrototypeCombatEvent(PrototypeCombatEventType.NextAttackReserved, this, skillId: runtime.Definition.Id));
+                return false; // Reservation is not a cast or an immediate extra hit.
+            }
             if (!string.IsNullOrEmpty(runtime.Definition.CustomHandlerKey) && !combat.SkillHandlers.ContainsKey(runtime.Definition.CustomHandlerKey)) return false;
             if (!string.IsNullOrEmpty(runtime.Definition.RequiredHitStatus) &&
                 (basicHitTarget == null || !basicHitTarget.IsAlive || basicHitTarget.StatusStacks(runtime.Definition.RequiredHitStatus) < runtime.Definition.RequiredStacks)) return false;
@@ -170,7 +179,7 @@ namespace LIVE.Prototype
             runtime.NextReadyAt = Now + runtime.Definition.CooldownSeconds;
             if (runtime.Definition.Trigger == PrototypeSkillTrigger.Periodic) runtime.NextTriggerAt += runtime.Definition.IntervalSeconds;
             runtime.CastCount++;
-            runtime.LastAttackCount = runtime.Definition.CountOnlySurvivingHits ? survivingBasicHits : Statistics.BasicAttackCount;
+            if (!runtime.Definition.ReserveNextBasic) runtime.LastAttackCount = runtime.Definition.CountOnlySurvivingHits ? survivingBasicHits : Statistics.BasicAttackCount;
             runtime.LastKillCount = Statistics.Kills;
             SkillGauge = 0;
             if (runtime.Definition.ConsumeHitStatus)
@@ -244,6 +253,13 @@ namespace LIVE.Prototype
             {
                 basicHitTarget = target;
                 if (target.IsAlive) survivingBasicHits++;
+                foreach (var runtime in skills)
+                    if (runtime.NextBasicReserved)
+                    {
+                        runtime.NextBasicReserved = false;
+                        combat.Publish(new PrototypeCombatEvent(PrototypeCombatEventType.NextAttackConsumed, this, target, skillId: runtime.Definition.Id));
+                        TryBeginCast(runtime, true);
+                    }
                 FireReactiveSkills(PrototypeSkillTrigger.OnBasicHit);
                 foreach (var runtime in skills)
                     if (runtime.Definition.Execution == PrototypeSkillExecution.Instant && runtime.Definition.Trigger == PrototypeSkillTrigger.AfterNAttacks) TryBeginCast(runtime);
@@ -254,6 +270,7 @@ namespace LIVE.Prototype
 
         public int ReceiveDamage(int damage, PrototypeUnit source, bool critical = false, string skillId = null, bool isBasic = false)
         {
+            if (resolvingLethalDamage) return 0; // Observers cannot reenter a replacement transaction.
             LastHealthDamage = 0;
             if (!IsAlive || damage <= 0) return 0;
             if (HasStatus(PrototypeStatusKind.Invulnerable)) { RecordPrevention(damage, source, skillId); return 0; }
@@ -270,7 +287,20 @@ namespace LIVE.Prototype
             if (currentHealth == 0)
             {
                 InterruptAction();
-                FireReactiveSkills(PrototypeSkillTrigger.OnLethalDamage);
+                resolvingLethalDamage = true;
+                try
+                {
+                    foreach (var runtime in skills)
+                    {
+                        if (runtime.Definition.Trigger != PrototypeSkillTrigger.OnLethalDamage) continue;
+                        if (TryBeginCast(runtime, true) && currentHealth > 0)
+                        {
+                            combat.Publish(new PrototypeCombatEvent(PrototypeCombatEventType.LethalDamageReplaced, this, this, currentHealth, runtime.Definition.Id));
+                            break; // One successful replacement per incoming lethal hit.
+                        }
+                    }
+                }
+                finally { resolvingLethalDamage = false; }
                 if (HasStatus(PrototypeStatusKind.Immortal) && currentHealth == 0) { currentHealth = 1; actual--; LastHealthDamage--; }
             }
             Statistics.DamageTaken += actual;
@@ -334,6 +364,7 @@ namespace LIVE.Prototype
         private void CancelAbilities(bool died)
         {
             statuses.Clear(); delayedEffects.Clear();
+            foreach (var runtime in skills) runtime.NextBasicReserved = false;
             casting = null; castTarget = null; buffs.Clear(); SkillGauge = 0; Shield = 0;
             ActionState = died || !IsAlive ? PrototypeActionState.Dead : PrototypeActionState.Idle;
         }

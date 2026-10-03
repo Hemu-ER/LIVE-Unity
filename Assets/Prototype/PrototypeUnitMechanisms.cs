@@ -58,8 +58,7 @@ namespace LIVE.Prototype
             casting = null; castTarget = null; castRemaining = 0;
             if (IsMoving)
             {
-                combat.Grid.Release(this);
-                if (IsAlive) combat.Grid.Place(this, Cell);
+                combat.Grid.CancelReservation(this);
                 transform.position = combat.WorldPosition(Cell);
             }
             IsMoving = false; attackFlash = 0;
@@ -144,7 +143,7 @@ namespace LIVE.Prototype
                         target.ReceiveDamage(damage, this, false, skill.Id);
                         healthDamage += target.LastHealthDamage;
                         break;
-                    case PrototypeSkillEffectType.Heal: target.ApplyHeal(PrototypeDamageCalculator.RoundAmount(raw), this, skill.Id); break;
+                    case PrototypeSkillEffectType.Heal: target.ApplyHeal(PrototypeDamageCalculator.RoundAmount(raw, skill.Trigger == PrototypeSkillTrigger.OnLethalDamage ? 1 : 0), this, skill.Id); break;
                     case PrototypeSkillEffectType.Shield: target.ApplyShield(PrototypeDamageCalculator.RoundAmount(raw), this, skill.Id); break;
                     case PrototypeSkillEffectType.StatBuff: target.ApplyBuff(effect, this, skill.Id); break;
                     case PrototypeSkillEffectType.Dash: DashToward(target, effect.DashCells, skill.Id); break;

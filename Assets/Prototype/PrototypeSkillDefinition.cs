@@ -59,6 +59,7 @@ namespace LIVE.Prototype
         public bool IgnoreRange, ReactAfterDamage, ResolvePerTarget, CountOnlySurvivingHits;
         public string RequiredHitStatus;
         public bool ConsumeHitStatus;
+        public bool ReserveNextBasic;
         public string RequiredStatus, CustomHandlerKey;
         public int RequiredStacks = 1;
     }
@@ -77,6 +78,7 @@ namespace LIVE.Prototype
     {
         public PrototypeSkillDefinition Definition { get; }
         public int CastCount { get; internal set; }
+        public bool NextBasicReserved { get; internal set; }
         internal int LastAttackCount;
         internal int LastKillCount;
         internal double NextTriggerAt, NextReadyAt;

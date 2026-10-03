@@ -56,6 +56,13 @@ namespace LIVE.Prototype
             }
         }
 
+        public void CancelReservation(PrototypeUnit unit)
+        {
+            for (int row = 0; row < Rows; row++)
+            for (int column = 0; column < Columns; column++)
+                if (reservations[row, column] == unit) reservations[row, column] = null;
+        }
+
         public void Clear()
         {
             Array.Clear(occupants, 0, occupants.Length);

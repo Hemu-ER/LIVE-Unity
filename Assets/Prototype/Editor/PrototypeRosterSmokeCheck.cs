@@ -26,9 +26,9 @@ namespace LIVE.Prototype.Editor
                     unit.Stats.AttackSpeed == row.baseStats.@as && unit.Stats.AttackRange == row.baseStats.range, "All source stats preserved: " + row.id);
                 Check(unit.PveOnly == row.pveOnly && unit.Playable == row.Playable && unit.WebImplemented == row.implemented &&
                     unit.MainStat == row.main && unit.AssetReferenceId == row.asset.sd, "Source metadata preserved: " + row.id);
-                Check(unit.DataMode == PrototypeDataMode.WebRoster && unit.Abilities.Skills.Length == (new[] { "isol", "bianca", "garnet", "charlotte", "kenneth", "abigail", "sua", "marcus" }.Contains(unit.Id) ? 2 : 0) &&
+                Check(unit.DataMode == PrototypeDataMode.WebRoster && unit.Abilities.Skills.Length == (new[] { "isol", "bianca", "garnet", "charlotte", "kenneth", "abigail", "sua", "marcus", "jenny", "ian" }.Contains(unit.Id) ? 2 : 0) &&
                     (!row.Playable || (!string.IsNullOrEmpty(unit.ActiveDefinitionReference) && !string.IsNullOrEmpty(unit.PassiveDefinitionReference))),
-                    "Only eight ported characters executable; all playable characters have references");
+                    "Only ten ported characters executable; all playable characters have references");
                 if (row.Playable) Check(pool.Capacity(row.id) == data.Rules.CopiesByCost[row.cost - 1], "Existing per-cost capacity");
                 else Check(!pool.TryTake(row.id), "PvE cannot be taken from player pool");
             }
