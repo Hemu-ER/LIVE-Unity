@@ -40,6 +40,9 @@ namespace LIVE.Prototype
                 if (effect.HealCasterRatioByStar?.Length == 3) effect.HealCasterRatio = effect.HealCasterRatioByStar[index];
                 if (effect.SourceMaxHealthRatioByStar?.Length == 3) effect.SourceMaxHealthRatio = effect.SourceMaxHealthRatioByStar[index];
             }
+            foreach (var skill in abilities.Skills)
+                foreach (var modifier in skill.StackModifiers ?? Array.Empty<PrototypeStackModifier>())
+                    if (modifier.AmountPerStackByStar?.Length == 3) modifier.AmountPerStack = modifier.AmountPerStackByStar[Mathf.Clamp(stars, 1, 3) - 1];
             ResetAbilities();
         }
 
@@ -125,7 +128,7 @@ namespace LIVE.Prototype
         private bool TriggerReady(PrototypeSkillRuntime runtime)
         {
             var definition = runtime.Definition;
-            if (definition.OncePerCombat && runtime.CastCount > 0) return false;
+            if (definition.OncePerCombat && (definition.ReserveNextBasic ? runtime.ReservationActivationCount : runtime.CastCount) > 0) return false;
             switch (definition.Trigger)
             {
                 case PrototypeSkillTrigger.GaugeFull: return SkillGauge >= MaxSkillGauge;
@@ -161,7 +164,7 @@ namespace LIVE.Prototype
         {
             if (!IsAlive || combat.State != PrototypeCombatState.Fighting ||
                 (IsControlled && !runtime.Definition.CanRunWhileControlled) || Now + 0.000001 < runtime.NextReadyAt ||
-                (runtime.Definition.OncePerCombat && runtime.CastCount > 0) || (!reactive && !TriggerReady(runtime))) return false;
+                (runtime.Definition.OncePerCombat && (runtime.Definition.ReserveNextBasic ? !reactive && runtime.ReservationActivationCount > 0 : runtime.CastCount > 0)) || (!reactive && !TriggerReady(runtime))) return false;
             var charge = runtime.Definition.Charge;
             if (charge != null && !string.IsNullOrEmpty(charge.Key) && StatusStacks(charge.Key) < 1) return false;
             if (runtime.Definition.ReserveNextBasic && !reactive)
@@ -170,6 +173,8 @@ namespace LIVE.Prototype
                     !skills.Exists(source => source.Definition.Id == runtime.Definition.RequiredSkillId && source.CastCount > 0 && source.LastAttackCount == Statistics.BasicAttackCount)) return false;
                 if (runtime.NextBasicReserved) return false;
                 runtime.NextBasicReserved = true;
+                runtime.ReservedAttacksRemaining = Math.Max(1, runtime.Definition.ReservedAttackCount);
+                runtime.ReservationActivationCount++;
                 runtime.LastAttackCount = runtime.Definition.CountOnlySurvivingHits ? survivingBasicHits : Statistics.BasicAttackCount;
                 combat.Publish(new PrototypeCombatEvent(PrototypeCombatEventType.NextAttackReserved, this, skillId: runtime.Definition.Id));
                 return false; // Reservation is not a cast or an immediate extra hit.
@@ -182,7 +187,10 @@ namespace LIVE.Prototype
             if (runtime.Definition.Execution == PrototypeSkillExecution.Cast)
             { casting = runtime; castTarget = target; castRemaining = Mathf.Max(0, runtime.Definition.CastSeconds); ActionState = PrototypeActionState.Casting; }
             runtime.NextReadyAt = Now + runtime.Definition.CooldownSeconds;
-            if (runtime.Definition.Trigger == PrototypeSkillTrigger.Periodic) runtime.NextTriggerAt += runtime.Definition.IntervalSeconds;
+            if (runtime.Definition.Trigger == PrototypeSkillTrigger.Periodic)
+                runtime.NextTriggerAt = runtime.Definition.CoalesceMissedPeriods
+                    ? runtime.Definition.FirstTriggerSeconds + (Math.Floor((Now - runtime.Definition.FirstTriggerSeconds + 0.000001) / runtime.Definition.IntervalSeconds) + 1) * runtime.Definition.IntervalSeconds
+                    : runtime.NextTriggerAt + runtime.Definition.IntervalSeconds;
             ConsumeCharge(runtime.Definition);
             runtime.CastCount++;
             if (!runtime.Definition.ReserveNextBasic) runtime.LastAttackCount = runtime.Definition.CountOnlySurvivingHits ? survivingBasicHits : Statistics.BasicAttackCount;
@@ -262,7 +270,8 @@ namespace LIVE.Prototype
                 foreach (var runtime in skills)
                     if (runtime.NextBasicReserved && (!runtime.Definition.PreserveReservationOnLethalBasic || target.IsAlive))
                     {
-                        runtime.NextBasicReserved = false;
+                        runtime.ReservedAttacksRemaining = Math.Max(0, runtime.ReservedAttacksRemaining - 1);
+                        runtime.NextBasicReserved = runtime.ReservedAttacksRemaining > 0;
                         if (runtime.Definition.RestartCountOnConsume) runtime.LastAttackCount = Statistics.BasicAttackCount;
                         combat.Publish(new PrototypeCombatEvent(PrototypeCombatEventType.NextAttackConsumed, this, target, skillId: runtime.Definition.Id));
                         if (TryBeginCast(runtime, true))
@@ -378,7 +387,7 @@ namespace LIVE.Prototype
         private void CancelAbilities(bool died)
         {
             statuses.Clear(); delayedEffects.Clear(); chargeRefills.Clear();
-            foreach (var runtime in skills) runtime.NextBasicReserved = false;
+            foreach (var runtime in skills) { runtime.NextBasicReserved = false; runtime.ReservedAttacksRemaining = 0; }
             casting = null; castTarget = null; buffs.Clear(); SkillGauge = 0; Shield = 0;
             ActionState = died || !IsAlive ? PrototypeActionState.Dead : PrototypeActionState.Idle;
         }

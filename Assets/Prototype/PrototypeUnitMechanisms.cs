@@ -113,6 +113,10 @@ namespace LIVE.Prototype
                 if (runtime.NextBasicReserved)
                     foreach (var modifier in runtime.Definition.ReservationModifiers ?? Array.Empty<PrototypeReservationModifier>())
                         if (modifier.Stat == stat) multiplier *= modifier.Multiplier;
+            foreach (var runtime in skills)
+                foreach (var modifier in runtime.Definition.StackModifiers ?? Array.Empty<PrototypeStackModifier>())
+                    if (modifier.Stat == stat)
+                        multiplier *= Math.Max(0, 1 + StatusStacks(modifier.Key) * PrototypeDamageCalculator.AuthoredRatio(modifier.AmountPerStack));
             return basis * multiplier;
         }
 

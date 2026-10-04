@@ -2,7 +2,7 @@
 
 기준: `Hemu-ER/ER-AutoChess` commit `2e4b699e961d43984ff0eba88d691038ea163560`의 combat-engine.js, game.js, roster.js 직접 조사. 32 playable, 4 PvE. 이름은 game.js skillInfo, 실행 규칙/계수는 combat-engine.js 우선.
 
-A: 작업 전 Unity 범용 시스템만으로 전체 스킬 표현 가능. B: 작은 범용 확장/데이터 조합 필요. C: 전용 상태/정책/훅 필요. B가 이번 패치에서 모두 실행 가능하다는 뜻은 아니다. 실행 정의는 아이솔·비앙카·가넷·샬럿·케네스·아비게일·수아·마커스·제니·이안·현우·유키·유스티나·라우라 14명의 28개이며, 나머지18명/36개는 pending reference이다. 최초 A/B/C 분류와 그 기준 시점은 변경하지 않았다.
+A: 작업 전 Unity 범용 시스템만으로 전체 스킬 표현 가능. B: 작은 범용 확장/데이터 조합 필요. C: 전용 상태/정책/훅 필요. B가 이번 패치에서 모두 실행 가능하다는 뜻은 아니다. 실행 정의는 아이솔·비앙카·가넷·샬럿·케네스·아비게일·수아·마커스·제니·이안·현우·유키·유스티나·라우라·나딘 15명의 30개이며, 나머지17명/34개는 pending reference이다. 최초 A/B/C 분류와 그 기준 시점은 변경하지 않았다.
 
 AP=현재 공격력, AMP=증폭. 계수 배열은1/2/3성. 행=y,열=x. 웹 일반 거리 Chebyshev,인접 Manhattan1. 아래 별도 기재하지 않은 이동/소환/처치 조건은 해당 스킬 실행에 없다. 사망 시 일반 실행 중단, 예외인 치명 피해 대체는 개별 기재.
 
@@ -71,7 +71,7 @@ AP=현재 공격력, AMP=증폭. 계수 배열은1/2/3성. 행=y,열=x. 웹 일�
 ## 검증 방법
 기존 PrototypeSmokeCheck에 PrototypeMechanismSmokeCheck를 연결했다. catalog/JSON,주기/cooldown,공격·체력·중첩,CC/만료/부활/범위,아이솔1~3성/10·20초,실제 상점→구매→배치→전투를 자동 검증한다. 결과는 SKILL_VALIDATION.md 참조.
 
-## 현재 실행 상태 (라우라 묶음 반영)
+## 현재 실행 상태 (나딘 묶음 반영)
 
 | 실험체 | 액티브 | 패시브 | 근거 |
 |---|---|---|---|
@@ -89,7 +89,8 @@ AP=현재 공격력, AMP=증폭. 계수 배열은1/2/3성. 행=y,열=x. 웹 일�
 | 유키 | implemented | implemented | 5회 예약→다음 공격 AP 피해/CC; 단추2개 소비/고갈 .5초 후2개 재충전 |
 | 유스티나 | implemented | implemented | 기본2회마다 원래 대상 행 AMP 피해→부스트 예약; 다음 생존 명중 대상 AMP 추가 피해 |
 | 라우라 | implemented | implemented | 10초 전체 AMP 피해/1초CC; 교대 예약 대기 AS×2,소비 전 해제 |
-| 위14명을 제외한18명 | pending | pending | reference만 있고 실행 정의 없음 |
+| 나딘 | implemented | implemented | 정수 초 변화마다 야성+2 최대15/스택 AS; 최초15에서 기본3회 AP 강화 |
+| 위15명을 제외한17명 | pending | pending | reference만 있고 실행 정의 없음 |
 
 최초 A0/B38/C26 분류는 유지한다. 첫 묶음3명은 당시 B였으며 작은 범용 확장과 데이터만으로 구현했다. 캐릭터별 C# 분기/전용 핸들러는 추가하지 않았다. 표현 범위 확장: 최대HP/처형 성급 배열,명시적 nearest/사거리 무시,피해 직후 health trigger,공격 직후 count trigger,대상별 효과 순서,절대 전투시각 기반 버프 만료. 효과/상태 이벤트와 감소/처형 통계를 추가했다.
 
@@ -161,3 +162,15 @@ ReservationModifiers는 예약 상태에서만 조회되는 범용 stat 배율 �
 
 현재 **14명/28개 실행,18명/36개 pending**. 앞 절 수치는 당시 작업 기록이다. 아야의 제한 횟수 강화 중 AS 배율은 이번 기능의 재사용 후보지만 복수 타격 소비 정책은 미지원이므로 완료/재분류하지 않는다. 다음 후보는 나딘 단독: 제한3회 강화와 야성 주기/스탯 연결을 작은 후속 작업으로 검증한다. 다른 캐릭터 실행 정의 변경 없음.
 검증 결과: `WEB_SKILL_LAURA_VALIDATION.md`.
+
+
+## 나딘: keyed stack → stat / 제한 횟수 강화
+
+웹 HEAD `2e4b699e961d43984ff0eba88d691038ea163560`의 나딘 분기/currentAs,roster/game 관련 데이터만 확인했다. 야성 시작0,정수 초가 이전 처리 정수 초보다 커지면+2,최대15. 일반적인 진행에서1초2,7초14,8초15. CC 중에도 증가하며 공격/추가 피해는 야성을 증가시키지 않는다. 시간 점프 시 놓친 모든 초를 소급 적립하지 않고 해당 검사에서+2 한 번만 적용한다.
+현재 AS × (1 + min(15,야성) × [.025,.0375,.05]). 영구 스택을 조회해 계산하는 multiplicative modifier이며 스택을 소비하지 않는다. 다른 timed/reservation/영구 AS 배율과 곱해지고 기존 공격 cooldown을 소급 변경하지 않는다.
+야성15 최초 도달 시 늑대 맹습을1회 준비하여 다음 기본 공격3회에 AP×[1,1.5,3] 추가 스킬 피해. 원래 기본 명중 대상에만 적용하고 추가 범위/기본 공격 트리거는 없다. 각 기본 피해 뒤 잔여 강화 횟수를 줄이고 추가 피해를 처리한다. 기본 피해로 대상이 죽어도 횟수는 소비,죽은 대상에게 추가 피해 없음. 야성은15를 유지하고 강화는 재부여하지 않는다.
+
+범용 StackModifiers(Key,Stat,AmountPerStack/ByStar)는 실시간 상태 조회로 중복 누적 없이 증감 모두 반영한다. ReservedAttackCount/ReservedAttacksRemaining/ReservationActivationCount로 기존 ReserveNextBasic을 복수 명중까지 확장하고 OncePerCombat은 부여 횟수 기준으로 분리했다. 이전 스킬은1회 소비를 유지한다. CoalesceMissedPeriods는 정수 초 점프 시 다중 소급 획득을 방지하는 선택적 주기 정책이다. Reset/사망/종료는 스택과 잔여 예약을 제거한다.
+
+현재 **15명/30개 실행,17명/34개 pending**. 이전 절의 수치는 당시 기록. 나딘만 완료. 아야의 다음5회 강화/강화 중 AS 배율에는 복수 예약과 reservation modifier를 재사용할 수 있으나 공격 조건·인접 적 조건과 소비 순서는 추가 검증이 필요하여 pending을 유지한다. 다음 후보는 아야 단독. 최초 A0/B38/C26 분류는 변경하지 않았다.
+웹 AS상한4와 Unity상한100,첫 공격 시각,.02초 tick/반올림,기존 성급 성장 등 엔진 차이는 유지. 상세 결과: `WEB_SKILL_NADINE_VALIDATION.md`.

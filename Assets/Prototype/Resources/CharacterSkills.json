@@ -1022,12 +1022,66 @@
     {
       "Id": "web.nadine.active",
       "DisplayName": "늑대 맹습",
-      "Implemented": false
+      "Implemented": true,
+      "Definition": {
+        "Id": "web.nadine.active",
+        "Trigger": 7,
+        "Target": 1,
+        "Execution": 1,
+        "RequiredStatus": "nadine.wild",
+        "RequiredStacks": 15,
+        "OncePerCombat": true,
+        "ReserveNextBasic": true,
+        "ReservedAttackCount": 3,
+        "CanRunWhileControlled": true,
+        "Effects": [
+          {
+            "Type": 0,
+            "Anchor": 2,
+            "AttackRatioByStar": [
+              1,
+              1.5,
+              3
+            ],
+            "PreserveAuthoredPrecision": true
+          }
+        ]
+      }
     },
     {
       "Id": "web.nadine.passive",
       "DisplayName": "야성",
-      "Implemented": false
+      "Implemented": true,
+      "Definition": {
+        "Id": "web.nadine.passive",
+        "Trigger": 5,
+        "Target": 1,
+        "Execution": 1,
+        "FirstTriggerSeconds": 1,
+        "IntervalSeconds": 1,
+        "CoalesceMissedPeriods": true,
+        "CanRunWhileControlled": true,
+        "StackModifiers": [
+          {
+            "Key": "nadine.wild",
+            "Stat": 3,
+            "AmountPerStackByStar": [
+              0.025,
+              0.0375,
+              0.05
+            ]
+          }
+        ],
+        "Effects": [
+          {
+            "Type": 5,
+            "Key": "nadine.wild",
+            "StackDelta": 2,
+            "StackLimit": 15,
+            "Permanent": true
+          }
+        ]
+      }
     },
     {
       "Id": "web.bernice.active",

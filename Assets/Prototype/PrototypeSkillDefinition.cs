@@ -56,6 +56,15 @@ namespace LIVE.Prototype
     }
 
     [Serializable]
+    public sealed class PrototypeStackModifier
+    {
+        public string Key;
+        public PrototypeBuffStat Stat;
+        public float AmountPerStack;
+        public float[] AmountPerStackByStar;
+    }
+
+    [Serializable]
     public sealed class PrototypeSkillDefinition
     {
         public string Id;
@@ -75,6 +84,9 @@ namespace LIVE.Prototype
         public string RequiredHitStatus;
         public bool ConsumeHitStatus;
         public bool ReserveNextBasic;
+        public int ReservedAttackCount = 1;
+        public bool CoalesceMissedPeriods;
+        public PrototypeStackModifier[] StackModifiers = Array.Empty<PrototypeStackModifier>();
         public bool RestartCountOnConsume;
         public PrototypeReservationModifier[] ReservationModifiers = Array.Empty<PrototypeReservationModifier>();
         public bool PreserveReservationOnLethalBasic;
@@ -99,6 +111,8 @@ namespace LIVE.Prototype
         public PrototypeSkillDefinition Definition { get; }
         public int CastCount { get; internal set; }
         public bool NextBasicReserved { get; internal set; }
+        public int ReservedAttacksRemaining { get; internal set; }
+        public int ReservationActivationCount { get; internal set; }
         internal int LastAttackCount;
         internal int LastKillCount;
         internal double NextTriggerAt, NextReadyAt;

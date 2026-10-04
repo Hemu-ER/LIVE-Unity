@@ -193,13 +193,23 @@ namespace LIVE.Prototype
             if (skill.Trigger == PrototypeSkillTrigger.OnReservedBasicResolved &&
                 (skill.Execution != PrototypeSkillExecution.Instant || string.IsNullOrEmpty(skill.RequiredSkillId)))
                 throw new InvalidOperationException("Reserved-hit followup requires a source skill");
+            if (skill.ReserveNextBasic && skill.ReservedAttackCount < 0)
+                throw new InvalidOperationException("Reservation attack count cannot be negative");
+            foreach (var modifier in skill.StackModifiers ?? Array.Empty<PrototypeStackModifier>())
+            {
+                if (modifier == null || string.IsNullOrEmpty(modifier.Key) || !Enum.IsDefined(typeof(PrototypeBuffStat), modifier.Stat) || !Finite(modifier.AmountPerStack))
+                    throw new InvalidOperationException("Invalid stack modifier");
+                if (modifier.AmountPerStackByStar != null && modifier.AmountPerStackByStar.Length > 0 &&
+                    (modifier.AmountPerStackByStar.Length != 3 || Array.Exists(modifier.AmountPerStackByStar, value => !Finite(value))))
+                    throw new InvalidOperationException("Invalid star stack modifier");
+            }
             if (skill.RestartCountOnConsume && !skill.ReserveNextBasic)
                 throw new InvalidOperationException("Consume counter reset requires a reservation");
             foreach (var modifier in skill.ReservationModifiers ?? Array.Empty<PrototypeReservationModifier>())
                 if (!skill.ReserveNextBasic || modifier == null || !Enum.IsDefined(typeof(PrototypeBuffStat), modifier.Stat) ||
                     !Finite(modifier.Multiplier) || modifier.Multiplier <= 0)
                     throw new InvalidOperationException("Invalid reservation-bound modifier");
-            if (skill.ReserveNextBasic && (skill.Trigger != PrototypeSkillTrigger.AfterNAttacks || skill.Execution != PrototypeSkillExecution.Instant || skill.Target != PrototypeSkillTarget.Self))
+            if (skill.ReserveNextBasic && ((skill.Trigger != PrototypeSkillTrigger.AfterNAttacks && skill.Trigger != PrototypeSkillTrigger.StatusAtLeast) || skill.Execution != PrototypeSkillExecution.Instant || skill.Target != PrototypeSkillTarget.Self))
                 throw new InvalidOperationException("Next basic reservation requires instant attack-count/self definition");
             if ((!string.IsNullOrEmpty(skill.RequiredHitStatus) && (skill.Trigger != PrototypeSkillTrigger.OnBasicHit || skill.RequiredStacks < 1)) ||
                 (skill.ConsumeHitStatus && string.IsNullOrEmpty(skill.RequiredHitStatus)) ||

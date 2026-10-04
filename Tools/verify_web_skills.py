@@ -23,7 +23,7 @@ assert active["FirstTriggerSeconds"] == active["IntervalSeconds"] == 10
 assert "isolNext:10" in engine and "u.skill.isolNext+=10" in engine
 assert "currentAtk(u)*(u.coefficients.bomb||1)" in engine
 assert "u.atk*=1+(u.coefficients.start||.15);u.as*=1+(u.coefficients.start||.15)" in engine
-assert sum(bool(e["Implemented"]) for e in entries.values()) == 28
+assert sum(bool(e["Implemented"]) for e in entries.values()) == 30
 
 for character, mapping in {
     "laura": {"twilight": ("active",0,"SkillRatioByStar"),"thief": ("passive",0,"SkillRatioByStar")},
@@ -90,4 +90,17 @@ laura=entries["web.laura.passive"]["Definition"]
 assert laura["RestartCountOnConsume"] and laura["AttacksRequired"]==1
 assert laura["ReservationModifiers"] == [{"Stat":3,"Multiplier":2}]
 assert entries["web.laura.active"]["Definition"]["CanRunWhileControlled"]
-print("WEB_SKILL_SOURCE_CHECK_PASSED: 14 executable character coefficient sets; reservation, effect order and charge/refill rules")
+nadine=entries["web.nadine.active"]["Definition"]
+nadine_passive=entries["web.nadine.passive"]["Definition"]
+block=re.search(r"nadine:\{([^}]+)\}",engine).group(1)
+wild=[float(x) for x in re.search(r"wild:\[([^]]+)\]",block).group(1).split(",")]
+wolf=[float(x) for x in re.search(r"wolf:\[([^]]+)\]",block).group(1).split(",")]
+assert nadine["Effects"][0]["AttackRatioByStar"]==wolf
+assert nadine_passive["StackModifiers"][0]["AmountPerStackByStar"]==wild
+assert "wild:0,wolfLeft:0" in engine
+assert "whole>(u.skill.wildTime||0)" in engine and "Math.min(15,u.skill.wild+2)" in engine
+assert "u.skill.wild>=15&&!u.skill.wolfTriggered" in engine and "u.skill.wolfLeft=3" in engine
+assert "u.skill.wolfLeft--;damage(u,t,currentAtk(u)" in engine
+assert "1+Math.min(15,u.skill.wild)*(u.coefficients.wild||0)" in engine
+assert nadine["ReservedAttackCount"]==3 and nadine["OncePerCombat"]
+print("WEB_SKILL_SOURCE_CHECK_PASSED: 15 executable character coefficient sets; reservation, effect order and charge/refill rules")
