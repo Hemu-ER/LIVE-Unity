@@ -45,7 +45,7 @@ namespace LIVE.Prototype
 
         private void ResetAbilities()
         {
-            skills.Clear(); statuses.Clear(); delayedEffects.Clear(); LastHealthDamage = 0;
+            skills.Clear(); statuses.Clear(); delayedEffects.Clear(); chargeRefills.Clear(); LastHealthDamage = 0;
             basicHitTarget = null; survivingBasicHits = 0; resolvingLethalDamage = false;
             foreach (var definition in abilities.Skills ?? Array.Empty<PrototypeSkillDefinition>())
                 skills.Add(new PrototypeSkillRuntime(definition) { NextTriggerAt = definition.FirstTriggerSeconds });
@@ -58,6 +58,7 @@ namespace LIVE.Prototype
         internal void MarkCombatStarted()
         {
             combatStarted = true;
+            StartCharges();
             foreach (var runtime in skills)
                 if (runtime.Definition.Trigger == PrototypeSkillTrigger.OnCombatStart && runtime.Definition.Execution == PrototypeSkillExecution.Instant) TryBeginCast(runtime);
         }
@@ -161,6 +162,8 @@ namespace LIVE.Prototype
             if (!IsAlive || combat.State != PrototypeCombatState.Fighting ||
                 (IsControlled && !runtime.Definition.CanRunWhileControlled) || Now + 0.000001 < runtime.NextReadyAt ||
                 (runtime.Definition.OncePerCombat && runtime.CastCount > 0) || (!reactive && !TriggerReady(runtime))) return false;
+            var charge = runtime.Definition.Charge;
+            if (charge != null && !string.IsNullOrEmpty(charge.Key) && StatusStacks(charge.Key) < 1) return false;
             if (runtime.Definition.ReserveNextBasic && !reactive)
             {
                 if (runtime.NextBasicReserved) return false;
@@ -178,6 +181,7 @@ namespace LIVE.Prototype
             { casting = runtime; castTarget = target; castRemaining = Mathf.Max(0, runtime.Definition.CastSeconds); ActionState = PrototypeActionState.Casting; }
             runtime.NextReadyAt = Now + runtime.Definition.CooldownSeconds;
             if (runtime.Definition.Trigger == PrototypeSkillTrigger.Periodic) runtime.NextTriggerAt += runtime.Definition.IntervalSeconds;
+            ConsumeCharge(runtime.Definition);
             runtime.CastCount++;
             if (!runtime.Definition.ReserveNextBasic) runtime.LastAttackCount = runtime.Definition.CountOnlySurvivingHits ? survivingBasicHits : Statistics.BasicAttackCount;
             runtime.LastKillCount = Statistics.Kills;
@@ -258,7 +262,10 @@ namespace LIVE.Prototype
                     {
                         runtime.NextBasicReserved = false;
                         combat.Publish(new PrototypeCombatEvent(PrototypeCombatEventType.NextAttackConsumed, this, target, skillId: runtime.Definition.Id));
-                        TryBeginCast(runtime, true);
+                        if (TryBeginCast(runtime, true))
+                            foreach (var followup in skills)
+                                if (followup.Definition.Trigger == PrototypeSkillTrigger.OnReservedBasicResolved && followup.Definition.RequiredSkillId == runtime.Definition.Id)
+                                    TryBeginCast(followup, true);
                     }
                 FireReactiveSkills(PrototypeSkillTrigger.OnBasicHit);
                 foreach (var runtime in skills)
@@ -363,7 +370,7 @@ namespace LIVE.Prototype
 
         private void CancelAbilities(bool died)
         {
-            statuses.Clear(); delayedEffects.Clear();
+            statuses.Clear(); delayedEffects.Clear(); chargeRefills.Clear();
             foreach (var runtime in skills) runtime.NextBasicReserved = false;
             casting = null; castTarget = null; buffs.Clear(); SkillGauge = 0; Shield = 0;
             ActionState = died || !IsAlive ? PrototypeActionState.Dead : PrototypeActionState.Idle;

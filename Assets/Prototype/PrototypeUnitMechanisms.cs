@@ -18,6 +18,39 @@ namespace LIVE.Prototype
         { public double Due; public PrototypeSkillDefinition Skill; public PrototypeSkillEffect Effect; public PrototypeUnit Anchor; }
         private readonly Dictionary<string, Status> statuses = new Dictionary<string, Status>(StringComparer.Ordinal);
         private readonly List<DelayedEffect> delayedEffects = new List<DelayedEffect>();
+        private readonly Dictionary<string, double> chargeRefills = new Dictionary<string, double>(StringComparer.Ordinal);
+        public bool ChargeRefillPending(string key) => chargeRefills.ContainsKey(key);
+
+        private void StartCharges()
+        {
+            foreach (var runtime in skills)
+            {
+                var charge = runtime.Definition.Charge;
+                if (charge == null || string.IsNullOrEmpty(charge.Key)) continue;
+                ApplyStatus(charge.Key, charge.Capacity, charge.Capacity, 1, permanent: true, source: this, skillId: runtime.Definition.Id);
+            }
+        }
+
+        private void RefillCharges()
+        {
+            foreach (var runtime in skills)
+            {
+                var charge = runtime.Definition.Charge;
+                if (charge == null || string.IsNullOrEmpty(charge.Key) || !chargeRefills.TryGetValue(charge.Key, out var due) || Now + 0.000001 < due) continue;
+                chargeRefills.Remove(charge.Key);
+                ApplyStatus(charge.Key, charge.Capacity, charge.Capacity, 1, permanent: true, source: this, skillId: runtime.Definition.Id);
+            }
+        }
+
+        private void ConsumeCharge(PrototypeSkillDefinition definition)
+        {
+            var charge = definition.Charge;
+            if (charge == null || string.IsNullOrEmpty(charge.Key)) return;
+            ApplyStatus(charge.Key, -1, charge.Capacity, 1, permanent: true, source: this, skillId: definition.Id);
+            if (StatusStacks(charge.Key) == 0 && !chargeRefills.ContainsKey(charge.Key))
+                chargeRefills.Add(charge.Key, Now + charge.RefillSeconds);
+        }
+
         public int LastHealthDamage { get; private set; }
         public bool IsControlled => HasStatus(PrototypeStatusKind.CrowdControl);
         public double CombatAttackPower => Math.Max(0, ModifiedStat(stats.AttackPower, PrototypeBuffStat.AttackPower));
@@ -80,6 +113,7 @@ namespace LIVE.Prototype
 
         private void TickMechanisms()
         {
+            RefillCharges();
             // Copy before resolving: effects may kill a unit and clear its pending work.
             var due = delayedEffects.FindAll(effect => effect.Due <= Now + 0.000001);
             delayedEffects.RemoveAll(effect => effect.Due <= Now + 0.000001);

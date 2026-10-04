@@ -145,6 +145,10 @@ namespace LIVE.Prototype
                 !Finite(abilities.GaugePerAttack) || abilities.GaugePerAttack < 0 ||
                 !Finite(abilities.GaugePerHit) || abilities.GaugePerHit < 0 || abilities.Skills == null)
                 throw new InvalidOperationException("Invalid combat stats/abilities: " + unit.Id);
+            foreach (var followup in abilities.Skills)
+                if (followup != null && followup.Trigger == PrototypeSkillTrigger.OnReservedBasicResolved &&
+                    !Array.Exists(abilities.Skills, candidate => candidate != null && candidate.Id == followup.RequiredSkillId && candidate.ReserveNextBasic))
+                    throw new InvalidOperationException("Missing reserved skill for followup: " + unit.Id);
             var ids = new HashSet<string>(StringComparer.Ordinal);
             foreach (var skill in abilities.Skills)
             {
@@ -177,6 +181,13 @@ namespace LIVE.Prototype
                 ((skill.Trigger == PrototypeSkillTrigger.OnBasicHit || skill.Trigger == PrototypeSkillTrigger.OnLethalDamage) && skill.Execution != PrototypeSkillExecution.Instant) ||
                 (skill.Trigger == PrototypeSkillTrigger.OnLethalDamage && (!skill.OncePerCombat || skill.Target != PrototypeSkillTarget.Self)))
                 throw new InvalidOperationException("Invalid trigger configuration: " + skill.Id);
+            if (skill.Charge != null && !string.IsNullOrEmpty(skill.Charge.Key) &&
+                (skill.Trigger != PrototypeSkillTrigger.OnBasicHit || skill.Execution != PrototypeSkillExecution.Instant || skill.Charge.Capacity < 1 ||
+                 !Finite(skill.Charge.RefillSeconds) || skill.Charge.RefillSeconds <= 0))
+                throw new InvalidOperationException("Charge requires immediate hit trigger and valid capacity/refill");
+            if (skill.Trigger == PrototypeSkillTrigger.OnReservedBasicResolved &&
+                (skill.Execution != PrototypeSkillExecution.Instant || string.IsNullOrEmpty(skill.RequiredSkillId)))
+                throw new InvalidOperationException("Reserved-hit followup requires a source skill");
             if (skill.ReserveNextBasic && (skill.Trigger != PrototypeSkillTrigger.AfterNAttacks || skill.Execution != PrototypeSkillExecution.Instant || skill.Target != PrototypeSkillTarget.Self))
                 throw new InvalidOperationException("Next basic reservation requires instant attack-count/self definition");
             if ((!string.IsNullOrEmpty(skill.RequiredHitStatus) && (skill.Trigger != PrototypeSkillTrigger.OnBasicHit || skill.RequiredStacks < 1)) ||

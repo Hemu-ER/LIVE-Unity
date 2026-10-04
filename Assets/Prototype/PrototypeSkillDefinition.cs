@@ -3,7 +3,7 @@ using System;
 namespace LIVE.Prototype
 {
     public enum PrototypeArchetype { Fighter, RangedAttack, RangedSkill, Tank, MeleeSkill, Assassin, Support, PveReference }
-    public enum PrototypeSkillTrigger { GaugeFull, AfterNAttacks, HealthBelowPercent, OnKill, OnCombatStart, Periodic, OnBasicHit, StatusAtLeast, OnLethalDamage }
+    public enum PrototypeSkillTrigger { GaugeFull, AfterNAttacks, HealthBelowPercent, OnKill, OnCombatStart, Periodic, OnBasicHit, StatusAtLeast, OnLethalDamage, OnReservedBasicResolved }
     public enum PrototypeSkillTarget { CurrentTarget, Self, LowestHealthAlly, NearestEnemy }
     public enum PrototypeSkillEffectType { Damage, Heal, Shield, StatBuff, Dash, Status, Execute }
     public enum PrototypeBuffStat { AttackPower, SkillAmplification, Defense, AttackSpeed, CriticalChance, DefensePenetration, MoveSpeed, NextAttackMultiplier, DamageReduction, BasicDamageReduction, Lifesteal }
@@ -41,6 +41,14 @@ namespace LIVE.Prototype
     }
 
     [Serializable]
+    public sealed class PrototypeChargeDefinition
+    {
+        public string Key;
+        public int Capacity = 2;
+        public float RefillSeconds = 0.5f;
+    }
+
+    [Serializable]
     public sealed class PrototypeSkillDefinition
     {
         public string Id;
@@ -60,6 +68,8 @@ namespace LIVE.Prototype
         public string RequiredHitStatus;
         public bool ConsumeHitStatus;
         public bool ReserveNextBasic;
+        public string RequiredSkillId;
+        public PrototypeChargeDefinition Charge;
         public string RequiredStatus, CustomHandlerKey;
         public int RequiredStacks = 1;
     }

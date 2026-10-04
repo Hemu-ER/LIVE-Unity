@@ -11,7 +11,7 @@ namespace LIVE.Prototype.Editor
         public static void Validate(BattlefieldPrototype board)
         {
             assertions=timeoutDraws=0;
-            Check(PrototypeCharacterSkills.Load().Definitions.Count(e=>e.Implemented)==20,"Exactly ten executable pairs");
+            Check(PrototypeCharacterSkills.Load().Definitions.Count(e=>e.Implemented)==24,"Exactly twelve executable pairs");
             for(int star=1;star<=3;star++){Persona(star);Survival("jenny",star);Survival("ian",star);}
             MovingReplacement();ReplacementPriority();ReservationSurvivesReplacement();
             foreach(var id in Ids)Shop(board,id);

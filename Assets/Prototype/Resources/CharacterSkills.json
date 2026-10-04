@@ -4,12 +4,65 @@
     {
       "Id": "web.hyunwoo.active",
       "DisplayName": "도그파이트",
-      "Implemented": false
+      "Implemented": true,
+      "Definition": {
+        "Id": "web.hyunwoo.active",
+        "Trigger": 1,
+        "Target": 1,
+        "Effects": [
+          {
+            "Type": 0,
+            "Anchor": 2,
+            "AttackRatioByStar": [
+              1.25,
+              1.8,
+              3
+            ],
+            "PreserveAuthoredPrecision": true
+          },
+          {
+            "Type": 1,
+            "SourceMaxHealthRatioByStar": [
+              0.05,
+              0.07,
+              0.1
+            ],
+            "PreserveAuthoredPrecision": true
+          }
+        ],
+        "Execution": 1,
+        "CastSeconds": 0,
+        "AttacksRequired": 3,
+        "ReserveNextBasic": true
+      }
     },
     {
       "Id": "web.hyunwoo.passive",
       "DisplayName": "허세",
-      "Implemented": false
+      "Implemented": true,
+      "Definition": {
+        "Id": "web.hyunwoo.passive",
+        "Trigger": 9,
+        "Target": 1,
+        "Effects": [
+          {
+            "Type": 3,
+            "Stat": 2,
+            "BuffAmountByStar": [
+              10,
+              20,
+              35
+            ],
+            "Duration": 2,
+            "Key": "hyunwoo.bluff",
+            "PreserveAuthoredPrecision": true
+          }
+        ],
+        "Execution": 1,
+        "CastSeconds": 0,
+        "RequiredSkillId": "web.hyunwoo.active",
+        "CanRunWhileControlled": true
+      }
     },
     {
       "Id": "web.adela.active",
@@ -34,12 +87,65 @@
     {
       "Id": "web.yuki.active",
       "DisplayName": "머리치기!",
-      "Implemented": false
+      "Implemented": true,
+      "Definition": {
+        "Id": "web.yuki.active",
+        "Trigger": 1,
+        "Target": 1,
+        "Effects": [
+          {
+            "Type": 0,
+            "Anchor": 2,
+            "AttackRatioByStar": [
+              2,
+              2.5,
+              4
+            ],
+            "PreserveAuthoredPrecision": true
+          },
+          {
+            "Type": 5,
+            "Anchor": 2,
+            "Key": "yuki.head.cc",
+            "StatusKind": 1,
+            "Duration": 0.5,
+            "PreserveAuthoredPrecision": true
+          }
+        ],
+        "Execution": 1,
+        "CastSeconds": 0,
+        "AttacksRequired": 5,
+        "ReserveNextBasic": true
+      }
     },
     {
       "Id": "web.yuki.passive",
       "DisplayName": "옷매무새 정리",
-      "Implemented": false
+      "Implemented": true,
+      "Definition": {
+        "Id": "web.yuki.passive",
+        "Trigger": 6,
+        "Target": 1,
+        "Effects": [
+          {
+            "Type": 0,
+            "Anchor": 2,
+            "AttackRatioByStar": [
+              0.5,
+              0.75,
+              1.5
+            ],
+            "PreserveAuthoredPrecision": true
+          }
+        ],
+        "Execution": 1,
+        "CastSeconds": 0,
+        "Charge": {
+          "Key": "yuki.buttons",
+          "Capacity": 2,
+          "RefillSeconds": 0.5
+        }
+      }
     },
     {
       "Id": "web.rio.active",
