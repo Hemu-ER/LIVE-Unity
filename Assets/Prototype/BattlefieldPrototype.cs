@@ -35,7 +35,7 @@ namespace LIVE.Prototype
             {
                 Color team = column < 3 ? TeamA : TeamB;
                 MakeSprite($"Tile {row + 1},{column + 1} / {(column < 3 ? "A" : "B")}", Tiles,
-                    Position(row, column), new Vector2(1.56f, 1.56f), Color.Lerp(new Color(0.07f, 0.1f, 0.17f), team, 0.28f), 0);
+                    Position(row, column), new Vector2(1.56f, 1.56f), Color.Lerp(new Color(0.07f, 0.1f, 0.17f), team, 0.17f), 0);
             }
 
             MakeSprite("Faction divider", transform, Vector3.zero, new Vector2(0.018f, 4.76f), new Color(0.6f, 0.7f, 0.8f), 1);
@@ -67,7 +67,7 @@ namespace LIVE.Prototype
             if (view != null)
             {
                 view.rect = PrototypeRunHud.CameraViewport(Screen.width, Screen.height);
-                view.orthographicSize = Mathf.Max(2.7f, 5.2f / Mathf.Max(0.1f, view.aspect));
+                view.orthographicSize = Mathf.Max(2.6f, 5.2f / Mathf.Max(0.1f, view.aspect));
             }
         }
 

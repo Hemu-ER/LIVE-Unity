@@ -23,7 +23,7 @@ U01~U09는 RunController ContextMenu의 별도 회귀 모드로 유지합니다.
 전투에 유닛을 배치하지 않아도 Ready할 수 있으며, 해당 라운드는 패배로 처리됩니다.
 회귀 모드 UI의 U01~U09는 Test Unit 01~09의 축약 표기이고, * / ** / ***는 별 등급입니다.
 기본 WebRoster 모드는 roster.js의 한국어 표시 이름을 그대로 사용합니다.
-임시 UI 레이아웃은 유지합니다. 한국어 이름은 설치된 OS 한국어 폰트를 사용하며 폰트 에셋은 포함하지 않습니다.
+플레이테스트 UI는 uGUI Canvas로 구성하며 1920×1080 기준으로 1600×900/1280×720까지 균등 축소합니다. 한국어 이름은 설치된 OS 한국어 폰트를 사용하며 폰트 에셋은 포함하지 않습니다.
 
 ## 확정 요청 규칙의 구현
 
@@ -85,7 +85,7 @@ U01~U09는 RunController ContextMenu의 별도 회귀 모드로 유지합니다.
 - PrototypePlayerRoster: 영구 소유·배치·벤치·합성.
 - PrototypeRunModel: Phase/라운드/타이머/결과와 구매·판매·배치·투자 명령 경계.
 - PrototypeRunController: 모델과 기존 전투 코어를 연결하는 씬 어댑터. 고정 틱을 한 곳에서 전달.
-- PrototypeRunHud: 임시 반응형 IMGUI 표시와 클릭 명령 전달. 경제/전투 규칙을 변경하지 않음.
+- PrototypeRunHud: 반응형 uGUI HUD/벤치/상점/액션/선택 정보와 클릭 명령 전달. 경제/전투 규칙을 변경하지 않음.
 - BattlefieldPrototype: 기존 3×6 보드, 임시 캐릭터, HP 바, 카메라/인스턴스 구성.
 - PrototypeCombatController / Grid / Stats / DamageCalculator / Unit: 기존 전투 코어 유지.
 
@@ -125,7 +125,7 @@ LIVEPrototype.exe -screen-fullscreen 0 -live-visual-check "<이미지 저장 폴
 
 빌드 결과는 저장소의 상위 폴더 `PrototypePlayer`에 생성됩니다.
 VisualProbe는 명시적 실행 인자가 있는 개발 빌드에서만 실행되며 일반 Play에는 개입하지 않습니다.
-1280×720, 800×600, 세로 화면에서 Prep, Combat, Result 화면을 저장합니다.
+1920×1080, 1600×900, 1280×720에서 Prep을, 1280×720에서 Combat/Result를 저장합니다.
 
 ## 범위 및 기술 부채
 
@@ -133,7 +133,7 @@ VisualProbe는 명시적 실행 인자가 있는 개발 빌드에서만 실행�
 - 결과 후 탈락/런 종료/승리 조건은 정의하지 않았습니다. Round 5 이후 마지막 적 테이블을 재사용합니다.
 - 적 테이블·무료 라운드 상점 갱신·동률 행동 순서 등은 프로토타입 검증용이며 최종 게임 규칙이 아닙니다.
 - 동일 틱은 고정 CombatId 순서대로 처리하므로 A에게 선공 이점이 있습니다. 고정 틱이지만 서버/플랫폼 간 완전 결정론은 아닙니다.
-- IMGUI는 임시 UI입니다. 좁은 화면에서는 전체 UI를 축소해 겹침을 방지하지만 터치 목표 크기 개선이 필요합니다.
+- uGUI는 플레이테스트용입니다. 16:9 데스크톱을 우선하며 모바일/세로 최적화,아트/아이콘/최종 타이포그래피는 후속입니다.
 - Prep 데이터 변경마다 소규모 표시 인스턴스를 재생성합니다. 대규모 확장 시 뷰 재사용/이벤트 기반 갱신을 권장합니다.
 - BFS는 18칸으로 제한되며 경로가 막히면 대기합니다. 다수 유닛의 이동 공정성·경로 할당 최적화는 후속 작업입니다.
 - 런 저장/불러오기, 리플레이, 네트워크 명령 검증, 로컬라이징은 아직 구현하지 않았습니다.
@@ -246,3 +246,5 @@ Unity 종료 코드 0, 컴파일 오류/런타임 예외 없음. assertion 수�
 제니/이안과 치명 피해 대체·다음 공격 예약 검증은 `WEB_SKILL_LETHAL_VALIDATION.md` 참조. 이안은3코스트가 등장하는 숙련도까지 기존 투자 기능을 사용한 뒤 상점에서 구매합니다.
 
 현우/유키의 예약 후속 효과·단추 재충전과 실제1/2/3성 구매·합성 검증은 `WEB_SKILL_CHARGE_VALIDATION.md` 참조. 기존 BattlefieldPrototype 씬의 WebRoster 모드에서 구매→배치→Ready로 확인합니다.
+
+플레이테스트 UI 구조·검증·캡처는 `UI_PLAYTEST_VALIDATION.md`를 확인하세요. 기존 IMGUI OnGUI는 제거되어 동시에 표시되지 않습니다.

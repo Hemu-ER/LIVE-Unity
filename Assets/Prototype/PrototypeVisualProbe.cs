@@ -30,9 +30,11 @@ namespace LIVE.Prototype
             controller.enabled = false;
             controller.ResetRun();
             while (!UnityEngine.Rendering.SplashScreen.isFinished) yield return null;
+            controller.Buy(0);controller.Buy(1);
+            var hud=board.GetComponent<PrototypeRunHud>();hud.Refresh();hud.BenchButtons[0].onClick.Invoke();
+            yield return Capture("prep-1920x1080", 1920, 1080);
+            yield return Capture("prep-1600x900", 1600, 900);
             yield return Capture("prep-1280x720", 1280, 720);
-            yield return Capture("prep-800x600", 800, 600);
-            yield return Capture("prep-720x1280", 720, 1280);
             for (int slot = 0; slot < controller.Run.Shop.Count; slot++)
             {
                 if (!controller.Buy(slot)) continue;
@@ -46,6 +48,7 @@ namespace LIVE.Prototype
             while (controller.Run.Phase == PrototypeRunPhase.Combat) controller.Step(0.02f);
             yield return Capture("result-1280x720", 1280, 720);
             // A separate opt-in view fixture makes shield/gauge bars visible in a repeatable capture.
+            board.GetComponent<PrototypeRunHud>().Canvas.enabled = false;
             board.GetComponent<PrototypeRunHud>().enabled = false;
             board.ClearUnits();
             var combatants = new System.Collections.Generic.List<PrototypeUnit>();
@@ -68,6 +71,14 @@ namespace LIVE.Prototype
         {
             Screen.SetResolution(width, height, FullScreenMode.Windowed);
             yield return new WaitForSecondsRealtime(0.5f);
+            var board=FindAnyObjectByType<BattlefieldPrototype>();var hud=board.GetComponent<PrototypeRunHud>();
+            if(hud.enabled)
+            {
+                if(!hud.PhaseText.Contains(board.RunController.Run.Phase.ToString()))
+                {Debug.LogError("UI_AUTO_REFRESH_FAILED: "+name);Application.Quit(1);yield break;}
+                hud.Refresh();Canvas.ForceUpdateCanvases();
+                Debug.Log("UI_CAPTURE_STATE: "+name+" / "+hud.PhaseText+" / inspector="+hud.InspectorVisible);
+            }
             yield return new WaitForEndOfFrame();
             ScreenCapture.CaptureScreenshot(Path.Combine(output, name + ".png"));
             yield return new WaitForSecondsRealtime(0.5f);
