@@ -21,7 +21,8 @@ namespace LIVE.Prototype
         }
 
         public bool Contains(Vector2Int cell) => cell.x >= 0 && cell.x < Rows && cell.y >= 0 && cell.y < Columns;
-        public static int Distance(Vector2Int a, Vector2Int b) => Mathf.Abs(a.x - b.x) + Mathf.Abs(a.y - b.y);
+        // All eight adjacent cells cost one board step (Chebyshev distance).
+        public static int Distance(Vector2Int a, Vector2Int b) => Mathf.Max(Mathf.Abs(a.x - b.x), Mathf.Abs(a.y - b.y));
         public PrototypeUnit Occupant(Vector2Int cell) => Contains(cell) ? occupants[cell.x, cell.y] : null;
         public bool IsFree(Vector2Int cell) => Contains(cell) && occupants[cell.x, cell.y] == null && reservations[cell.x, cell.y] == null;
 
@@ -33,6 +34,8 @@ namespace LIVE.Prototype
 
         public bool TryReserveStep(PrototypeUnit unit, Vector2Int destination)
         {
+            // Units occupy cells, not walls: diagonal steps ignore the two orthogonal side cells.
+            // Only the destination must be free of occupants and movement reservations.
             if (unit == null || Occupant(unit.Cell) != unit || Distance(unit.Cell, destination) != 1 || !IsFree(destination)) return false;
             reservations[destination.x, destination.y] = unit;
             return true;
@@ -86,7 +89,9 @@ namespace LIVE.Prototype
                 var neighbours = new List<Vector2Int>
                 {
                     cell + Vector2Int.up, cell + Vector2Int.down,
-                    cell + Vector2Int.left, cell + Vector2Int.right
+                    cell + Vector2Int.left, cell + Vector2Int.right,
+                    cell + new Vector2Int(-1, -1), cell + new Vector2Int(-1, 1),
+                    cell + new Vector2Int(1, -1), cell + new Vector2Int(1, 1)
                 };
                 neighbours.Sort((a, b) =>
                 {

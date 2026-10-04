@@ -65,7 +65,7 @@ namespace LIVE.Prototype.Editor
             foreach(var area in new[]{PrototypeEffectArea.TargetRow,PrototypeEffectArea.TargetColumn,PrototypeEffectArea.AdjacentEnemies})
             using(var f=new Fixture(false))
             {
-                var a=f.Add("A",1,1); var b=f.Add("B",1,3); var c=f.Add("B",1,4); var d=f.Add("B",0,3);
+                var a=f.Add("A",1,1); var b=f.Add("B",1,3); var c=f.Add("B",1,4); var d=f.Add("B",2,3); // Keep b as the stable-ID anchor at equal Chebyshev distance.
                 var skill=Make(PrototypeSkillTrigger.OnCombatStart,new PrototypeSkillEffect { Type=PrototypeSkillEffectType.Damage, BaseDamage=30,Area=area });
                 skill.Target=PrototypeSkillTarget.CurrentTarget; skill.Range=6;
                 a.ConfigureAbilities(new PrototypeAbilitySettings{Skills=new[]{skill}}); f.Start();

@@ -151,7 +151,8 @@ namespace LIVE.Prototype
             {
                 if (unit == null || !unit.IsAlive) continue;
                 bool ally = unit.Faction == Faction;
-                int distance = effect.ChebyshevRadius ? Mathf.Max(Mathf.Abs(unit.Row - anchor.Row), Mathf.Abs(unit.Column - anchor.Column)) : PrototypeCombatGrid.Distance(unit.Cell, anchor.Cell);
+                // ChebyshevRadius remains serialized for existing data; all board radii now use this metric.
+                int distance = PrototypeCombatGrid.Distance(unit.Cell, anchor.Cell);
                 bool include = false;
                 switch (effect.Area)
                 {

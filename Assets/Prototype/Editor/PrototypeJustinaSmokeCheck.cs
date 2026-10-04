@@ -29,7 +29,7 @@ namespace LIVE.Prototype.Editor
         {
             using(var f=new Fixture())
             {
-                Equip(f.A,"justina",star);var same=f.Add("B",1,5);var other=f.Add("B",0,4);var dead=f.Add("B",1,3);
+                Equip(f.A,"justina",star);var same=f.Add("B",1,5);var other=f.Add("B",2,4); /* Equal Chebyshev distance: original row target has lower stable ID. */var dead=f.Add("B",1,3);
                 foreach(var u in f.Units.Skip(1))u.Stats.MaxHealth=100000;
                 f.Start();dead.SetHealth(0);foreach(var u in f.Units.Skip(1))if(u.IsAlive)Hold(u);
                 var active=Skill(f.A,"web.justina.active");var passive=Skill(f.A,"web.justina.passive");
@@ -54,7 +54,7 @@ namespace LIVE.Prototype.Editor
         {
             using(var f=new Fixture())
             {
-                Equip(f.A,"justina",1);var same=f.Add("B",1,5);var other=f.Add("B",0,4);
+                Equip(f.A,"justina",1);var same=f.Add("B",1,5);var other=f.Add("B",2,4); /* Equal Chebyshev distance: original row target has lower stable ID. */
                 foreach(var u in f.Units.Skip(1))u.Stats.MaxHealth=100000;
                 f.Start();foreach(var u in f.Units.Skip(1))Hold(u);
                 Attacks(f,f.A,2);var passive=Skill(f.A,"web.justina.passive");f.B.SetHealth(1);
@@ -69,7 +69,7 @@ namespace LIVE.Prototype.Editor
             }
             using(var f=new Fixture())
             {
-                Equip(f.A,"justina",1);var same=f.Add("B",1,5);var other=f.Add("B",0,4);
+                Equip(f.A,"justina",1);var same=f.Add("B",1,5);var other=f.Add("B",2,4); /* Equal Chebyshev distance: original row target has lower stable ID. */
                 f.Start();foreach(var u in f.Units.Skip(1))Hold(u);Attacks(f,f.A,1);f.B.SetHealth(1);
                 int hp=same.CurrentHealth;Attacks(f,f.A,2);
                 Check(!f.B.IsAlive&&same.CurrentHealth==hp-170&&other.CurrentHealth==1000,"Killing basic keeps original row anchor");

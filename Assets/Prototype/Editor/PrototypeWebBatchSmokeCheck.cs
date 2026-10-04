@@ -142,9 +142,17 @@ namespace LIVE.Prototype.Editor
                     for(int row=0;row<3;row++)for(int team=0;team<2;team++)
                     {string id=Ids[(row+team+seed)%3];var unit=f.Add(team==0?"A":"B",row,team==0?1:4,data.CombatStats(id,1+seed%3));unit.ConfigureAbilities(data.Definition(id).Abilities,1+seed%3);}
                     f.Combat.Initialize(3,6,f.Units,BattlefieldPrototype.Position,seed);f.Combat.StartBattle();int ticks=0;
-                    while(f.Combat.State==PrototypeCombatState.Fighting&&ticks++<3000)
-                    {f.Step();var cells=new HashSet<Vector2Int>();foreach(var unit in f.Units)if(unit.IsAlive)Check(cells.Add(unit.Cell)&&!double.IsNaN(unit.CombatAttackPower)&&!double.IsInfinity(unit.CombatAttackPower),"Mixed team occupancy/finite stats");}
-                    Check(f.Combat.State==PrototypeCombatState.Finished,"Mixed battle finishes");string result=f.Combat.Winner+"|"+ticks+"|"+f.Combat.StatisticsSummary();Check(previous==null||previous==result,"Mixed same seed deterministic");previous=result;
+                    while(f.Combat.State==PrototypeCombatState.Fighting&&ticks<3000)
+                    {ticks++;f.Step();var cells=new HashSet<Vector2Int>();foreach(var unit in f.Units)if(unit.IsAlive)Check(cells.Add(unit.Cell)&&!double.IsNaN(unit.CombatAttackPower)&&!double.IsInfinity(unit.CombatAttackPower),"Mixed team occupancy/finite stats");}
+                    if(f.Combat.State==PrototypeCombatState.Fighting)
+                    {
+                        Check(ticks==3000&&f.Combat.StallCount==0&&f.Units.Sum(u=>u.Statistics.DamageDealt)>0,"60s active combat, not a silent stall");
+                        // Same deadline as RunController and the later character regression suites.
+                        Debug.Log("WEB_BATCH_TIMEOUT_DRAW: seed="+seed+", repeat="+repeat);
+                        f.Combat.FinishAsDraw();
+                        Check(f.Combat.Winner==null,"Existing 60s Draw rule");
+                    }
+                    Check(f.Combat.State==PrototypeCombatState.Finished,"Mixed battle resolves by elimination or existing deadline");string result=f.Combat.Winner+"|"+ticks+"|"+f.Combat.StatisticsSummary();Check(previous==null||previous==result,"Mixed same seed deterministic");previous=result;
                 }
             }
         }

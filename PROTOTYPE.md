@@ -94,7 +94,7 @@ U01~U09는 RunController ContextMenu의 별도 회귀 모드로 유지합니다.
 
 ## 전투 규칙 유지
 
-맨해튼 거리, 동률은 현재 HP → 고정 CombatId 순서, 상하좌우 한 칸 이동,
+Chebyshev 거리, 동률은 현재 HP → 고정 CombatId 순서, 대각선을 포함한 8방향 한 칸 이동,
 BFS 우회 경로, 출발 칸 점유 + 도착 칸 예약, 이동 중 공격 금지,
 공격 간격 1 / AttackSpeed, 피해 AttackPower × 100 / (100 + max(0, Defense − DefensePenetration)), 기본 공격 치명타 2배, 정수 반올림(.5 올림), 최소 1.
 죽은 개체는 즉시 점유/예약 해제 및 렌더러 숨김. 타겟 재선택. 종료 후 이동/공격 정지.
@@ -207,7 +207,7 @@ assertion 수는 루프 내부 불변식 검사를 포함합니다. 독립 테�
 ## 전투 AI 고도화
 
 - 현재 타겟은 살아 있는 적이고 현재 전투에 속하는 동안 유지합니다. 더 가깝거나 HP가 낮은 적이 나타나도 자동 전환하지 않습니다.
-- 타겟이 없거나 무효하면 맨해튼 거리 → 현재 HP(비율 아님) → CombatId 사전순으로 선택합니다. 사망 통지에서 즉시 재탐색합니다.
+- 타겟이 없거나 무효하면 Chebyshev 거리 → 현재 HP(비율 아님) → CombatId 사전순으로 선택합니다. 사망 통지에서 즉시 재탐색합니다.
 - CombatId는 진영 + **초기** row/column으로 생성하며 이동·Dash·Reset에서 바뀌지 않습니다. 전투 내 개체 ID이며 캐릭터 정의 ID나 소유 Instance ID와 구분됩니다.
 - 중앙 컨트롤러가 CombatId 순으로 행동을 처리합니다. 등록 순서나 MonoBehaviour 실행 순서가 같은 칸 예약의 승자를 바꾸지 않습니다.
 - 기존 BFS를 재사용하여 현재 타겟을 기본 공격할 수 있는 빈 칸까지 최단 이동 경로를 찾습니다. 동률 탐색은 타겟까지 거리 → row → column 순입니다.
@@ -248,3 +248,16 @@ Unity 종료 코드 0, 컴파일 오류/런타임 예외 없음. assertion 수�
 현우/유키의 예약 후속 효과·단추 재충전과 실제1/2/3성 구매·합성 검증은 `WEB_SKILL_CHARGE_VALIDATION.md` 참조. 기존 BattlefieldPrototype 씬의 WebRoster 모드에서 구매→배치→Ready로 확인합니다.
 
 플레이테스트 UI 구조·검증·캡처는 `UI_PLAYTEST_VALIDATION.md`를 확인하세요. 기존 IMGUI OnGUI는 제거되어 동시에 표시되지 않습니다.
+
+
+### Board geometry update
+
+All board distances use `max(abs(rowA-rowB), abs(columnA-columnB))` through
+`PrototypeCombatGrid.Distance`: basic/skill range, nearest targets, BFS and radius effects.
+BFS explores eight neighbours at equal cost. Target ties remain current HP then stable
+CombatId; path ties remain target distance then row/column. A diagonal destination is
+legal even when both orthogonal side cells are occupied. Only visited destinations must
+be free of occupants/reservations; units are not solid corner walls. Dash uses these same
+steps. Orthogonal and diagonal travel both take `1 / MoveSpeed` seconds, with interpolation.
+Rows/columns, all-unit effects and authored skill coefficients are unchanged.
+See `DISTANCE_VALIDATION.md` for the audit and regression results.

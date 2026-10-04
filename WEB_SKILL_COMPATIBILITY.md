@@ -174,3 +174,16 @@ ReservationModifiers는 예약 상태에서만 조회되는 범용 stat 배율 �
 
 현재 **15명/30개 실행,17명/34개 pending**. 이전 절의 수치는 당시 기록. 나딘만 완료. 아야의 다음5회 강화/강화 중 AS 배율에는 복수 예약과 reservation modifier를 재사용할 수 있으나 공격 조건·인접 적 조건과 소비 순서는 추가 검증이 필요하여 pending을 유지한다. 다음 후보는 아야 단독. 최초 A0/B38/C26 분류는 변경하지 않았다.
 웹 AS상한4와 Unity상한100,첫 공격 시각,.02초 tick/반올림,기존 성급 성장 등 엔진 차이는 유지. 상세 결과: `WEB_SKILL_NADINE_VALIDATION.md`.
+
+
+## Board geometry update (2026-10-05)
+
+The historical Manhattan AI/nearest notes above describe the original port baseline.
+The current Unity game rule now uses shared Chebyshev distance for targeting, basic and
+skill ranges, AdjacentEnemies/NearbyAllies radii and eight-way BFS/Dash. Explicit
+ChebyshevRadius data (Charlotte) keeps its meaning; the serialized flag is retained for
+compatibility, but no longer chooses a different metric. Row/column targeting and all-unit
+areas are unchanged. No character definitions, coefficients, implementation counts or
+pending classifications changed. Historical web observations remain unchanged; future
+ports requiring an explicitly orthogonal-only shape must represent that shape separately
+rather than changing the common board distance. See `DISTANCE_VALIDATION.md`.

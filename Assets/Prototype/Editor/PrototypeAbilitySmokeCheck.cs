@@ -102,7 +102,7 @@ namespace LIVE.Prototype.Editor
                     PrototypeSkillTarget.CurrentTarget, new PrototypeSkillEffect { Type = PrototypeSkillEffectType.Damage, BaseDamage = 40 });
                 retargetSkill.Range = 4;
                 f.A.ConfigureAbilities(new PrototypeAbilitySettings { Skills = new[] { retargetSkill } });
-                var spare = f.Add("B", 0, 4);
+                var spare = f.Add("B", 0, 5); // Strictly farther under Chebyshev, still inside skill range 4.
                 f.Start(); f.Step();
                 Check(f.A.Target == f.B, "Cast starts on nearest enemy");
                 f.B.TakeDamage(10000);

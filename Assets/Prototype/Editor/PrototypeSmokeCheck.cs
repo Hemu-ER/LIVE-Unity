@@ -73,6 +73,7 @@ namespace LIVE.Prototype.Editor
                 foreach (var renderer in b.GetComponentsInChildren<SpriteRenderer>()) Require(!renderer.enabled, "Dead units must disappear.");
                 b.SetHealth(100);
                 Require(!b.IsAlive && b.CurrentHealth == 0, "Direct healing must not resurrect dead units.");
+                PrototypeDistanceSmokeCheck.Validate();
                 VerifyCompleteBattle(board);
                 VerifyMultipleUnitsAndRouting();
                 VerifyRangedAttacks();
@@ -136,14 +137,15 @@ namespace LIVE.Prototype.Editor
             }
             combat.ResetBattle();
             combat.StartBattle();
+            Require(combat.Grid.TryFindStep(board.Units[0], board.Units[1], out var reservedCell), "Expected a reachable step.");
             combat.Step(0.02f);
             Require(board.Units[0].IsMoving, "Expected a movement reservation.");
             combat.ResetBattle();
-            Require(combat.Grid.IsFree(new Vector2Int(1, 2)), "Reset during movement must clear reservations.");
+            Require(combat.Grid.IsFree(reservedCell), "Reset during movement must clear reservations.");
             combat.StartBattle();
             combat.Step(0.02f);
             board.Units[0].TakeDamage(1000);
-            Require(combat.Winner == "B" && combat.Grid.IsFree(new Vector2Int(1, 2)), "Death in transit must release reservation and allow B victory.");
+            Require(combat.Winner == "B" && combat.Grid.IsFree(reservedCell), "Death in transit must release reservation and allow B victory.");
         }
 
         private static void VerifyMultipleUnitsAndRouting()
@@ -159,7 +161,7 @@ namespace LIVE.Prototype.Editor
                 combat.enabled = false;
                 combat.Initialize(3, 6, new[] { a, blocker, enemyLow, enemyHigh }, BattlefieldPrototype.Position);
                 Require(combat.FindNearestEnemy(a) == enemyHigh, "Equal distance must use row before creation order.");
-                Require(combat.Grid.TryFindStep(a, enemyHigh, out var next) && next == new Vector2Int(0, 1), "Path must route around occupied cells deterministically.");
+                Require(combat.Grid.TryFindStep(a, enemyHigh, out var next) && next == new Vector2Int(0, 2), "Path must route around occupied cells deterministically.");
                 Require(!combat.Grid.TryReserveStep(a, blocker.Cell), "Occupied destinations must be rejected.");
                 Require(!combat.Grid.TryReserveStep(a, new Vector2Int(-1, 1)), "Out-of-bounds destinations must be rejected.");
                 Require(combat.Grid.TryReserveStep(a, next) && !combat.Grid.IsFree(next), "Movement destination must be reserved.");

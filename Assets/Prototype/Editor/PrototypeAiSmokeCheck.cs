@@ -111,10 +111,11 @@ namespace LIVE.Prototype.Editor
             for (int reverse = 0; reverse < 2; reverse++)
             using (var f = new Fixture())
             {
-                var first = f.Add("A", 0, 1);
-                var second = f.Add("A", 1, 0);
-                f.Add("A", 0, 2, new PrototypeCombatStats { MaxHealth = 1000, AttackRange = 6 });
-                var enemy = f.Add("B", 1, 2);
+                var first = f.Add("A", 0, 0);
+                var second = f.Add("A", 2, 0);
+                f.Add("A", 0, 1, new PrototypeCombatStats { MaxHealth = 1000, AttackRange = 6 });
+                f.Add("A", 2, 1, new PrototypeCombatStats { MaxHealth = 1000, AttackRange = 6 });
+                var enemy = f.Add("B", 1, 3);
                 f.Start(reverse: reverse != 0);
                 Check(f.Combat.Grid.TryFindStep(first, enemy, out var p) && p == new Vector2Int(1, 1), "First candidate routes around allied ranged blocker");
                 Check(f.Combat.Grid.TryFindStep(second, enemy, out var q) && q == p, "Both initially compete for same cell");
@@ -130,9 +131,9 @@ namespace LIVE.Prototype.Editor
         {
             using (var f = new Fixture())
             {
-                var ranged = f.Add("A", 1, 1, new PrototypeCombatStats { MaxHealth = 1000, AttackRange = 3 });
+                var ranged = f.Add("A", 1, 0, new PrototypeCombatStats { MaxHealth = 1000, AttackRange = 3 });
                 f.Add("A", 2, 5);
-                var dasher = f.Add("B", 1, 4);
+                var dasher = f.Add("B", 1, 3);
                 dasher.ConfigureAbilities(DashAbility());
                 f.Start(); f.Step();
                 Check(!ranged.IsMoving && ranged.Statistics.BasicAttackCount == 1, "Ranged initially holds firing position");
@@ -148,7 +149,8 @@ namespace LIVE.Prototype.Editor
                 dasher.ConfigureAbilities(DashAbility());
                 f.Add("A", 1, 2, new PrototypeCombatStats { MaxHealth = 1000, AttackRange = 6 });
                 if (blocked == 1)
-                    foreach (var cell in new[] { new Vector2Int(0, 1), new Vector2Int(2, 1), new Vector2Int(1, 0) })
+                    foreach (var cell in new[] { new Vector2Int(0, 0), new Vector2Int(0, 1), new Vector2Int(0, 2),
+                        new Vector2Int(1, 0), new Vector2Int(2, 0), new Vector2Int(2, 1), new Vector2Int(2, 2) })
                         f.Add("A", cell.x, cell.y, new PrototypeCombatStats { MaxHealth = 1000, AttackRange = 6 });
                 f.Add("B", 1, 4, new PrototypeCombatStats { MaxHealth = 1000, AttackRange = 6 });
                 f.Start(); var origin = dasher.Cell;
