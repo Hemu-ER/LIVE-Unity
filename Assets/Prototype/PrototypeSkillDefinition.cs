@@ -68,6 +68,7 @@ namespace LIVE.Prototype
         public string RequiredHitStatus;
         public bool ConsumeHitStatus;
         public bool ReserveNextBasic;
+        public bool PreserveReservationOnLethalBasic;
         public string RequiredSkillId;
         public PrototypeChargeDefinition Charge;
         public string RequiredStatus, CustomHandlerKey;

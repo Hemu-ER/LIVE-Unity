@@ -23,9 +23,10 @@ assert active["FirstTriggerSeconds"] == active["IntervalSeconds"] == 10
 assert "isolNext:10" in engine and "u.skill.isolNext+=10" in engine
 assert "currentAtk(u)*(u.coefficients.bomb||1)" in engine
 assert "u.atk*=1+(u.coefficients.start||.15);u.as*=1+(u.coefficients.start||.15)" in engine
-assert sum(bool(e["Implemented"]) for e in entries.values()) == 24
+assert sum(bool(e["Implemented"]) for e in entries.values()) == 26
 
 for character, mapping in {
+    "justina": {"bomb": ("active",0,"SkillRatioByStar"),"boost": ("passive",0,"SkillRatioByStar")},
     "hyunwoo": {"dog": ("active",0,"AttackRatioByStar"),"heal": ("active",1,"SourceMaxHealthRatioByStar"),"bluffDef": ("passive",0,"BuffAmountByStar")},
     "yuki": {"head": ("active",0,"AttackRatioByStar"),"button": ("passive",0,"AttackRatioByStar")},
     "jenny": {"persona": ("active",0,"SkillRatioByStar"),"revive": ("passive",0,"SourceMaxHealthRatioByStar"),"reviveAs": ("passive",2,"BuffAmountByStar")},
@@ -73,4 +74,10 @@ assert entries["web.hyunwoo.active"]["Definition"]["ReserveNextBasic"]
 assert entries["web.yuki.active"]["Definition"]["ReserveNextBasic"]
 assert entries["web.hyunwoo.passive"]["Definition"]["RequiredSkillId"] == "web.hyunwoo.active"
 assert entries["web.yuki.passive"]["Definition"]["Charge"] == {"Key":"yuki.buttons","Capacity":2,"RefillSeconds":.5}
-print("WEB_SKILL_SOURCE_CHECK_PASSED: 12 executable character coefficient sets; reservation, effect order and charge/refill rules")
+assert "if(u.boost&&!t.dead)" in engine
+assert "enemies(u).filter(e=>e.y===t.y)" in engine
+block=engine[engine.index("if(u.name==='유스티나')"):].split("\n")[0]
+assert block.index("u.boost=false") < block.index("u.basicCount>=2") < block.index("u.boost=true")
+assert entries["web.justina.passive"]["Definition"]["RequiredSkillId"] == "web.justina.active"
+assert entries["web.justina.passive"]["Definition"]["PreserveReservationOnLethalBasic"]
+print("WEB_SKILL_SOURCE_CHECK_PASSED: 13 executable character coefficient sets; reservation, effect order and charge/refill rules")

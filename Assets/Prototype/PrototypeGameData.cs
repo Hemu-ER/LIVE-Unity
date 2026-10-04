@@ -149,6 +149,11 @@ namespace LIVE.Prototype
                 if (followup != null && followup.Trigger == PrototypeSkillTrigger.OnReservedBasicResolved &&
                     !Array.Exists(abilities.Skills, candidate => candidate != null && candidate.Id == followup.RequiredSkillId && candidate.ReserveNextBasic))
                     throw new InvalidOperationException("Missing reserved skill for followup: " + unit.Id);
+            foreach (var reservation in abilities.Skills)
+                if (reservation != null && reservation.ReserveNextBasic && !string.IsNullOrEmpty(reservation.RequiredSkillId) &&
+                    !Array.Exists(abilities.Skills, source => source != null && source.Id == reservation.RequiredSkillId && !source.ReserveNextBasic &&
+                        source.Trigger == PrototypeSkillTrigger.AfterNAttacks && source.Execution == PrototypeSkillExecution.Instant))
+                    throw new InvalidOperationException("Missing immediate attack-count source for reservation: " + unit.Id);
             var ids = new HashSet<string>(StringComparer.Ordinal);
             foreach (var skill in abilities.Skills)
             {
@@ -201,7 +206,7 @@ namespace LIVE.Prototype
                 if (skill.ResolvePerTarget && (effect.DelaySeconds != 0 || effect.Area != skill.Effects[0].Area || effect.Radius != skill.Effects[0].Radius || effect.ChebyshevRadius != skill.Effects[0].ChebyshevRadius))
                     throw new InvalidOperationException("Per-target effects require a shared selector and no delay");
                 if (!Enum.IsDefined(typeof(PrototypeEffectAnchor), effect.Anchor) ||
-                    (effect.Anchor == PrototypeEffectAnchor.BasicHitTarget && ((skill.Trigger != PrototypeSkillTrigger.OnBasicHit && !skill.ReserveNextBasic) || effect.DelaySeconds != 0)))
+                    (effect.Anchor == PrototypeEffectAnchor.BasicHitTarget && ((skill.Trigger != PrototypeSkillTrigger.OnBasicHit && !skill.ReserveNextBasic && !(skill.Trigger == PrototypeSkillTrigger.AfterNAttacks && skill.Execution == PrototypeSkillExecution.Instant)) || effect.DelaySeconds != 0)))
                     throw new InvalidOperationException("Basic-hit anchor requires immediate hit trigger");
                 if (!Enum.IsDefined(typeof(PrototypeEffectArea), effect.Area) || !Enum.IsDefined(typeof(PrototypeStatusKind), effect.StatusKind) ||
                     effect.Radius < 0 || !Finite(effect.DelaySeconds) || effect.DelaySeconds < 0 ||

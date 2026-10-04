@@ -166,6 +166,8 @@ namespace LIVE.Prototype
             if (charge != null && !string.IsNullOrEmpty(charge.Key) && StatusStacks(charge.Key) < 1) return false;
             if (runtime.Definition.ReserveNextBasic && !reactive)
             {
+                if (!string.IsNullOrEmpty(runtime.Definition.RequiredSkillId) &&
+                    !skills.Exists(source => source.Definition.Id == runtime.Definition.RequiredSkillId && source.CastCount > 0 && source.LastAttackCount == Statistics.BasicAttackCount)) return false;
                 if (runtime.NextBasicReserved) return false;
                 runtime.NextBasicReserved = true;
                 runtime.LastAttackCount = runtime.Definition.CountOnlySurvivingHits ? survivingBasicHits : Statistics.BasicAttackCount;
@@ -258,7 +260,7 @@ namespace LIVE.Prototype
                 basicHitTarget = target;
                 if (target.IsAlive) survivingBasicHits++;
                 foreach (var runtime in skills)
-                    if (runtime.NextBasicReserved)
+                    if (runtime.NextBasicReserved && (!runtime.Definition.PreserveReservationOnLethalBasic || target.IsAlive))
                     {
                         runtime.NextBasicReserved = false;
                         combat.Publish(new PrototypeCombatEvent(PrototypeCombatEventType.NextAttackConsumed, this, target, skillId: runtime.Definition.Id));
@@ -269,7 +271,11 @@ namespace LIVE.Prototype
                     }
                 FireReactiveSkills(PrototypeSkillTrigger.OnBasicHit);
                 foreach (var runtime in skills)
-                    if (runtime.Definition.Execution == PrototypeSkillExecution.Instant && runtime.Definition.Trigger == PrototypeSkillTrigger.AfterNAttacks) TryBeginCast(runtime);
+                    if (runtime.Definition.Execution == PrototypeSkillExecution.Instant && runtime.Definition.Trigger == PrototypeSkillTrigger.AfterNAttacks &&
+                        !(runtime.Definition.ReserveNextBasic && !string.IsNullOrEmpty(runtime.Definition.RequiredSkillId))) TryBeginCast(runtime);
+                // Linked reservations are armed only after their immediate source has resolved.
+                foreach (var runtime in skills)
+                    if (runtime.Definition.ReserveNextBasic && !string.IsNullOrEmpty(runtime.Definition.RequiredSkillId)) TryBeginCast(runtime);
             }
             basicHitTarget = null;
             GainGauge(abilities.GaugePerAttack);

@@ -160,12 +160,57 @@
     {
       "Id": "web.justina.active",
       "DisplayName": "섬멸 포격",
-      "Implemented": false
+      "Implemented": true,
+      "Definition": {
+        "Id": "web.justina.active",
+        "Trigger": 1,
+        "Target": 1,
+        "Execution": 1,
+        "CastSeconds": 0,
+        "AttacksRequired": 2,
+        "Effects": [
+          {
+            "Type": 0,
+            "Anchor": 2,
+            "Area": 3,
+            "SkillRatioByStar": [
+              0.85,
+              1.1,
+              1.9
+            ],
+            "PreserveAuthoredPrecision": true
+          }
+        ]
+      }
     },
     {
       "Id": "web.justina.passive",
       "DisplayName": "부스트 대쉬",
-      "Implemented": false
+      "Implemented": true,
+      "Definition": {
+        "Id": "web.justina.passive",
+        "Trigger": 1,
+        "Target": 1,
+        "Execution": 1,
+        "CastSeconds": 0,
+        "AttacksRequired": 2,
+        "Effects": [
+          {
+            "Type": 0,
+            "Anchor": 2,
+            "Area": 0,
+            "SkillRatioByStar": [
+              0.45,
+              0.6,
+              1.0
+            ],
+            "PreserveAuthoredPrecision": true
+          }
+        ],
+        "ReserveNextBasic": true,
+        "RequiredSkillId": "web.justina.active",
+        "PreserveReservationOnLethalBasic": true
+      }
     },
     {
       "Id": "web.jenny.active",

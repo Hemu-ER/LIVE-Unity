@@ -11,7 +11,7 @@ namespace LIVE.Prototype.Editor
         public static void Validate(BattlefieldPrototype board)
         {
             assertions=timeoutDraws=0;
-            Check(PrototypeCharacterSkills.Load().Definitions.Count(e=>e.Implemented)==24,"Only twelve character pairs executable");
+            Check(PrototypeCharacterSkills.Load().Definitions.Count(e=>e.Implemented)==26,"Only thirteen character pairs executable");
             for(int star=1;star<=3;star++){Hyunwoo(star);Yuki(star);Buttons(star);}
             ReservationWhileMoving();
             ChargeLifecycle();
