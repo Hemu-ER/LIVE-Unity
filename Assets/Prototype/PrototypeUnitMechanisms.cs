@@ -108,6 +108,11 @@ namespace LIVE.Prototype
                 if (buff.Multiplicative) multiplier *= Math.Max(0, 1 + buff.Amount);
                 else basis += buff.Amount;
             }
+            // Derived from reservation state: no separately timed buff can leak after cancellation.
+            foreach (var runtime in skills)
+                if (runtime.NextBasicReserved)
+                    foreach (var modifier in runtime.Definition.ReservationModifiers ?? Array.Empty<PrototypeReservationModifier>())
+                        if (modifier.Stat == stat) multiplier *= modifier.Multiplier;
             return basis * multiplier;
         }
 

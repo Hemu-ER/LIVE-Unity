@@ -193,6 +193,12 @@ namespace LIVE.Prototype
             if (skill.Trigger == PrototypeSkillTrigger.OnReservedBasicResolved &&
                 (skill.Execution != PrototypeSkillExecution.Instant || string.IsNullOrEmpty(skill.RequiredSkillId)))
                 throw new InvalidOperationException("Reserved-hit followup requires a source skill");
+            if (skill.RestartCountOnConsume && !skill.ReserveNextBasic)
+                throw new InvalidOperationException("Consume counter reset requires a reservation");
+            foreach (var modifier in skill.ReservationModifiers ?? Array.Empty<PrototypeReservationModifier>())
+                if (!skill.ReserveNextBasic || modifier == null || !Enum.IsDefined(typeof(PrototypeBuffStat), modifier.Stat) ||
+                    !Finite(modifier.Multiplier) || modifier.Multiplier <= 0)
+                    throw new InvalidOperationException("Invalid reservation-bound modifier");
             if (skill.ReserveNextBasic && (skill.Trigger != PrototypeSkillTrigger.AfterNAttacks || skill.Execution != PrototypeSkillExecution.Instant || skill.Target != PrototypeSkillTarget.Self))
                 throw new InvalidOperationException("Next basic reservation requires instant attack-count/self definition");
             if ((!string.IsNullOrEmpty(skill.RequiredHitStatus) && (skill.Trigger != PrototypeSkillTrigger.OnBasicHit || skill.RequiredStacks < 1)) ||

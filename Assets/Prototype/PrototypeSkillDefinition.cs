@@ -49,6 +49,13 @@ namespace LIVE.Prototype
     }
 
     [Serializable]
+    public sealed class PrototypeReservationModifier
+    {
+        public PrototypeBuffStat Stat;
+        public float Multiplier = 1;
+    }
+
+    [Serializable]
     public sealed class PrototypeSkillDefinition
     {
         public string Id;
@@ -68,6 +75,8 @@ namespace LIVE.Prototype
         public string RequiredHitStatus;
         public bool ConsumeHitStatus;
         public bool ReserveNextBasic;
+        public bool RestartCountOnConsume;
+        public PrototypeReservationModifier[] ReservationModifiers = Array.Empty<PrototypeReservationModifier>();
         public bool PreserveReservationOnLethalBasic;
         public string RequiredSkillId;
         public PrototypeChargeDefinition Charge;

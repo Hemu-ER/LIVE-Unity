@@ -662,12 +662,68 @@
     {
       "Id": "web.laura.active",
       "DisplayName": "황혼의 도둑",
-      "Implemented": false
+      "Implemented": true,
+      "Definition": {
+        "Id": "web.laura.active",
+        "Trigger": 5,
+        "Target": 1,
+        "Execution": 1,
+        "FirstTriggerSeconds": 10,
+        "IntervalSeconds": 10,
+        "CanRunWhileControlled": true,
+        "ResolvePerTarget": true,
+        "Effects": [
+          {
+            "Type": 0,
+            "Area": 1,
+            "SkillRatioByStar": [
+              1.5,
+              2,
+              3.5
+            ],
+            "PreserveAuthoredPrecision": true
+          },
+          {
+            "Type": 5,
+            "Area": 1,
+            "Key": "laura.twilight.cc",
+            "StatusKind": 1,
+            "Duration": 1
+          }
+        ]
+      }
     },
     {
       "Id": "web.laura.passive",
       "DisplayName": "괴도",
-      "Implemented": false
+      "Implemented": true,
+      "Definition": {
+        "Id": "web.laura.passive",
+        "Trigger": 1,
+        "Target": 1,
+        "Execution": 1,
+        "AttacksRequired": 1,
+        "ReserveNextBasic": true,
+        "RestartCountOnConsume": true,
+        "ReservationModifiers": [
+          {
+            "Stat": 3,
+            "Multiplier": 2
+          }
+        ],
+        "Effects": [
+          {
+            "Type": 0,
+            "Anchor": 2,
+            "SkillRatioByStar": [
+              1,
+              1.5,
+              2.5
+            ],
+            "PreserveAuthoredPrecision": true
+          }
+        ]
+      }
     },
     {
       "Id": "web.bianca.active",

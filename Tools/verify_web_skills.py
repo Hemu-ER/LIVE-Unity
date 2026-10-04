@@ -23,9 +23,10 @@ assert active["FirstTriggerSeconds"] == active["IntervalSeconds"] == 10
 assert "isolNext:10" in engine and "u.skill.isolNext+=10" in engine
 assert "currentAtk(u)*(u.coefficients.bomb||1)" in engine
 assert "u.atk*=1+(u.coefficients.start||.15);u.as*=1+(u.coefficients.start||.15)" in engine
-assert sum(bool(e["Implemented"]) for e in entries.values()) == 26
+assert sum(bool(e["Implemented"]) for e in entries.values()) == 28
 
 for character, mapping in {
+    "laura": {"twilight": ("active",0,"SkillRatioByStar"),"thief": ("passive",0,"SkillRatioByStar")},
     "justina": {"bomb": ("active",0,"SkillRatioByStar"),"boost": ("passive",0,"SkillRatioByStar")},
     "hyunwoo": {"dog": ("active",0,"AttackRatioByStar"),"heal": ("active",1,"SourceMaxHealthRatioByStar"),"bluffDef": ("passive",0,"BuffAmountByStar")},
     "yuki": {"head": ("active",0,"AttackRatioByStar"),"button": ("passive",0,"AttackRatioByStar")},
@@ -80,4 +81,13 @@ block=engine[engine.index("if(u.name==='유스티나')"):].split("\n")[0]
 assert block.index("u.boost=false") < block.index("u.basicCount>=2") < block.index("u.boost=true")
 assert entries["web.justina.passive"]["Definition"]["RequiredSkillId"] == "web.justina.active"
 assert entries["web.justina.passive"]["Definition"]["PreserveReservationOnLethalBasic"]
-print("WEB_SKILL_SOURCE_CHECK_PASSED: 13 executable character coefficient sets; reservation, effect order and charge/refill rules")
+assert "nextLaura:10" in engine and "u.skill.nextLaura+=10" in engine
+assert "u.name==='라우라'&&u.skill.thief)a*=2" in engine
+assert "lauraCc:1" in engine
+assert "if(u.skill.thief){u.skill.thief=false;activateSource" in engine
+assert "else u.skill.thief=true" in engine
+laura=entries["web.laura.passive"]["Definition"]
+assert laura["RestartCountOnConsume"] and laura["AttacksRequired"]==1
+assert laura["ReservationModifiers"] == [{"Stat":3,"Multiplier":2}]
+assert entries["web.laura.active"]["Definition"]["CanRunWhileControlled"]
+print("WEB_SKILL_SOURCE_CHECK_PASSED: 14 executable character coefficient sets; reservation, effect order and charge/refill rules")

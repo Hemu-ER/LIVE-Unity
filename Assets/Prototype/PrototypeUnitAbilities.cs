@@ -263,6 +263,7 @@ namespace LIVE.Prototype
                     if (runtime.NextBasicReserved && (!runtime.Definition.PreserveReservationOnLethalBasic || target.IsAlive))
                     {
                         runtime.NextBasicReserved = false;
+                        if (runtime.Definition.RestartCountOnConsume) runtime.LastAttackCount = Statistics.BasicAttackCount;
                         combat.Publish(new PrototypeCombatEvent(PrototypeCombatEventType.NextAttackConsumed, this, target, skillId: runtime.Definition.Id));
                         if (TryBeginCast(runtime, true))
                             foreach (var followup in skills)
