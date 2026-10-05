@@ -64,7 +64,7 @@ namespace LIVE.Prototype
 
         internal void Remove(PrototypeOwnedUnit unit) => owned.Remove(unit);
 
-        internal void MergeAll()
+        internal void MergeAll(Action<PrototypeOwnedUnit> beforeRemove = null)
         {
             // Re-scan after each merge for cascades. Prefer preserving a deployed unit, then oldest ID.
             bool merged;
@@ -84,6 +84,7 @@ namespace LIVE.Prototype
                         return location != 0 ? location : a.InstanceId.CompareTo(b.InstanceId);
                     });
                     group[0].Stars++;
+                    beforeRemove?.Invoke(group[1]); beforeRemove?.Invoke(group[2]);
                     owned.Remove(group[1]); owned.Remove(group[2]);
                     merged = true;
                     break;

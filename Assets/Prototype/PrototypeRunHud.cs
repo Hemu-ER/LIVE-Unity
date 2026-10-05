@@ -8,7 +8,7 @@ using UnityEngine.InputSystem.UI;
 namespace LIVE.Prototype
 {
     // Presentation only. All commands are delegated to the existing controller API.
-    public sealed class PrototypeRunHud : MonoBehaviour
+    public sealed partial class PrototypeRunHud : MonoBehaviour
     {
         public const float DesignWidth = 1920, DesignHeight = 1080;
         public static readonly Rect BoardArea = new Rect(310, 104, 1300, 610);
@@ -64,7 +64,7 @@ namespace LIVE.Prototype
             root.anchorMin=root.anchorMax=root.pivot=new Vector2(.5f,.5f);root.sizeDelta=new Vector2(DesignWidth,DesignHeight);
             if(EventSystem.current==null)
             { ownedEvents=new GameObject("Playtest EventSystem",typeof(EventSystem),typeof(InputSystemUIInputModule));ownedEvents.transform.SetParent(transform,false);ownedEvents.GetComponent<InputSystemUIInputModule>().AssignDefaultActions(); }
-            Build();Refresh();
+            Build();BuildItems();Refresh();
         }
         public static float Scale(int width,int height)=>Mathf.Max(.01f,Mathf.Min(width/DesignWidth,height/DesignHeight));
         public static Vector2 Offset(int width,int height){float s=Scale(width,height);return new Vector2((width-DesignWidth*s)/2,(height-DesignHeight*s)/2);}
@@ -151,9 +151,10 @@ namespace LIVE.Prototype
             clear.interactable=selected!=null;ready.interactable=prep;inspector.SetActive(selected!=null);
             if(selected!=null)
             {
-                var def=controller.Data.Definition(selected.DefinitionId);var stats=controller.Data.CombatStats(selected.DefinitionId,selected.Stars);
+                var def=controller.Data.Definition(selected.DefinitionId);var stats=controller.Run.DerivedStats(selected.InstanceId);
                 details.text=$"{def.DisplayName}\n{new string('*',selected.Stars)}   ·   Cost {def.Cost}\n\nHP   {stats.MaxHealth}\nAP   {stats.AttackPower}     AMP   {stats.SkillAmplification:0.#}\nDEF  {stats.Defense}\nAS   {stats.AttackSpeed:0.##}\nRange   {stats.AttackRange}";
             }
+            RefreshItems();
             UpdateBoard(width,height,prep);
         }
         private static void Highlight(Button button,bool selected)

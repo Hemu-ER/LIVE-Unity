@@ -83,7 +83,7 @@ namespace LIVE.Prototype
             {
                 if (owned.Location != PrototypeUnitLocation.Board) continue;
                 combatants.Add(battlefield.CreateUnit("A", owned.Row, owned.Column,
-                    Data.CombatStats(owned.DefinitionId, owned.Stars), Label(owned.DefinitionId, owned.Stars), Data.Definition(owned.DefinitionId).Abilities, owned.Stars));
+                    Run.DerivedStats(owned.InstanceId), Label(owned.DefinitionId, owned.Stars), Data.Definition(owned.DefinitionId).Abilities, owned.Stars));
             }
             foreach (var enemy in Run.Enemies.Units)
                 combatants.Add(battlefield.CreateUnit("B", enemy.Row, enemy.Column,
@@ -101,6 +101,12 @@ namespace LIVE.Prototype
             displayedRevision = -1;
             Synchronize();
         }
+
+        public PrototypeItemAcquisition AcquireItem(string definition) { var result=Run.AcquireItem(definition);Synchronize();return result; }
+        public bool EquipItem(long item,long unit,int slot=-1) { bool result=Run.EquipItem(item,unit,slot);Synchronize();return result; }
+        public bool UnequipItem(long item) { bool result=Run.UnequipItem(item);Synchronize();return result; }
+        public bool CombineItems(long first,long second) { bool result=Run.CombineItems(first,second);Synchronize();return result; }
+        public bool SellItem(long item) { bool result=Run.SellItem(item);Synchronize();return result; }
 
         public bool Ready() { bool success = Run.Ready(); Synchronize(); return success; }
         public bool Buy(int slot) { bool success = Run.Buy(slot); Synchronize(); return success; }

@@ -32,6 +32,18 @@ namespace LIVE.Prototype
             while (!UnityEngine.Rendering.SplashScreen.isFinished) yield return null;
             controller.Buy(0);controller.Buy(1);
             var hud=board.GetComponent<PrototypeRunHud>();hud.Refresh();hud.BenchButtons[0].onClick.Invoke();
+            if (Array.IndexOf(Environment.GetCommandLineArgs(), "-live-items-check") >= 0)
+            {
+                var owned=controller.Run.Player.OwnedUnits[0];
+                foreach(var id in new[]{"crafted_sheath_sheath","crafted_gold_bracelet_quiver","wire"})
+                {
+                    controller.AcquireItem(id);
+                    foreach(var item in controller.Run.Items.Items)if(item.UnitId==0){controller.EquipItem(item.InstanceId,owned.InstanceId);break;}
+                }
+                foreach(var definition in controller.Run.ItemCatalog.Items)
+                { if(controller.Run.Items.FreeSlots==0)break;controller.AcquireItem(definition.Id); }
+                hud.BoardButtons[4].onClick.Invoke();hud.ItemButtons[8].onClick.Invoke();hud.Refresh();
+            }
             yield return Capture("prep-1920x1080", 1920, 1080);
             yield return Capture("prep-1600x900", 1600, 900);
             yield return Capture("prep-1280x720", 1280, 720);

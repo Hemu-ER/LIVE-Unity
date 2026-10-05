@@ -1,0 +1,783 @@
+{
+  "Items": [
+    {
+      "Id": "sheath",
+      "DisplayName": "검집",
+      "Completed": false,
+      "SalePrice": 2,
+      "AssetKey": "Items/sheath",
+      "EffectId": "",
+      "EffectDescription": "",
+      "Modifiers": [
+        {
+          "Stat": 0,
+          "Amount": 10
+        }
+      ]
+    },
+    {
+      "Id": "gold_bracelet",
+      "DisplayName": "금팔찌",
+      "Completed": false,
+      "SalePrice": 2,
+      "AssetKey": "Items/gold_bracelet",
+      "EffectId": "",
+      "EffectDescription": "",
+      "Modifiers": [
+        {
+          "Stat": 1,
+          "Amount": 15
+        }
+      ]
+    },
+    {
+      "Id": "bulletproof_vest",
+      "DisplayName": "방탄 조끼",
+      "Completed": false,
+      "SalePrice": 2,
+      "AssetKey": "Items/bulletproof_vest",
+      "EffectId": "",
+      "EffectDescription": "",
+      "Modifiers": [
+        {
+          "Stat": 2,
+          "Amount": 100
+        }
+      ]
+    },
+    {
+      "Id": "chain_armor",
+      "DisplayName": "사슬 갑옷",
+      "Completed": false,
+      "SalePrice": 2,
+      "AssetKey": "Items/chain_armor",
+      "EffectId": "",
+      "EffectDescription": "",
+      "Modifiers": [
+        {
+          "Stat": 3,
+          "Amount": 10
+        }
+      ]
+    },
+    {
+      "Id": "quiver",
+      "DisplayName": "화살통",
+      "Completed": false,
+      "SalePrice": 2,
+      "AssetKey": "Items/quiver",
+      "EffectId": "",
+      "EffectDescription": "",
+      "Modifiers": [
+        {
+          "Stat": 4,
+          "Amount": 0.1
+        }
+      ]
+    },
+    {
+      "Id": "electronic_parts",
+      "DisplayName": "전자 부품",
+      "Completed": false,
+      "SalePrice": 2,
+      "AssetKey": "Items/electronic_parts",
+      "EffectId": "",
+      "EffectDescription": "",
+      "Modifiers": [
+        {
+          "Stat": 5,
+          "Amount": 0.1
+        }
+      ]
+    },
+    {
+      "Id": "wire",
+      "DisplayName": "철사",
+      "Completed": false,
+      "SalePrice": 2,
+      "AssetKey": "Items/wire",
+      "EffectId": "",
+      "EffectDescription": "",
+      "Modifiers": [
+        {
+          "Stat": 6,
+          "Amount": 8
+        }
+      ]
+    },
+    {
+      "Id": "crafted_sheath_sheath",
+      "DisplayName": "오토-암즈",
+      "Completed": true,
+      "SalePrice": 5,
+      "AssetKey": "Items/crafted_sheath_sheath",
+      "EffectId": "item.crafted_sheath_sheath",
+      "EffectDescription": "고유 효과 미구현",
+      "Modifiers": [
+        {
+          "Stat": 0,
+          "Amount": 10
+        },
+        {
+          "Stat": 0,
+          "Amount": 10
+        }
+      ]
+    },
+    {
+      "Id": "crafted_sheath_gold_bracelet",
+      "DisplayName": "블레이드 부츠",
+      "Completed": true,
+      "SalePrice": 5,
+      "AssetKey": "Items/crafted_sheath_gold_bracelet",
+      "EffectId": "item.crafted_sheath_gold_bracelet",
+      "EffectDescription": "고유 효과 미구현",
+      "Modifiers": [
+        {
+          "Stat": 0,
+          "Amount": 10
+        },
+        {
+          "Stat": 1,
+          "Amount": 15
+        }
+      ]
+    },
+    {
+      "Id": "crafted_sheath_bulletproof_vest",
+      "DisplayName": "스펙터",
+      "Completed": true,
+      "SalePrice": 5,
+      "AssetKey": "Items/crafted_sheath_bulletproof_vest",
+      "EffectId": "item.crafted_sheath_bulletproof_vest",
+      "EffectDescription": "고유 효과 미구현",
+      "Modifiers": [
+        {
+          "Stat": 0,
+          "Amount": 10
+        },
+        {
+          "Stat": 2,
+          "Amount": 100
+        }
+      ]
+    },
+    {
+      "Id": "crafted_sheath_chain_armor",
+      "DisplayName": "아오자이",
+      "Completed": true,
+      "SalePrice": 5,
+      "AssetKey": "Items/crafted_sheath_chain_armor",
+      "EffectId": "item.crafted_sheath_chain_armor",
+      "EffectDescription": "고유 효과 미구현",
+      "Modifiers": [
+        {
+          "Stat": 0,
+          "Amount": 10
+        },
+        {
+          "Stat": 3,
+          "Amount": 10
+        }
+      ]
+    },
+    {
+      "Id": "crafted_sheath_quiver",
+      "DisplayName": "미스릴 퀴버",
+      "Completed": true,
+      "SalePrice": 5,
+      "AssetKey": "Items/crafted_sheath_quiver",
+      "EffectId": "item.crafted_sheath_quiver",
+      "EffectDescription": "고유 효과 미구현",
+      "Modifiers": [
+        {
+          "Stat": 0,
+          "Amount": 10
+        },
+        {
+          "Stat": 4,
+          "Amount": 0.1
+        }
+      ]
+    },
+    {
+      "Id": "crafted_sheath_electronic_parts",
+      "DisplayName": "레이더",
+      "Completed": true,
+      "SalePrice": 5,
+      "AssetKey": "Items/crafted_sheath_electronic_parts",
+      "EffectId": "item.crafted_sheath_electronic_parts",
+      "EffectDescription": "고유 효과 미구현",
+      "Modifiers": [
+        {
+          "Stat": 0,
+          "Amount": 10
+        },
+        {
+          "Stat": 5,
+          "Amount": 0.1
+        }
+      ]
+    },
+    {
+      "Id": "crafted_sheath_wire",
+      "DisplayName": "서슬가시 체인",
+      "Completed": true,
+      "SalePrice": 5,
+      "AssetKey": "Items/crafted_sheath_wire",
+      "EffectId": "item.crafted_sheath_wire",
+      "EffectDescription": "고유 효과 미구현",
+      "Modifiers": [
+        {
+          "Stat": 0,
+          "Amount": 10
+        },
+        {
+          "Stat": 6,
+          "Amount": 8
+        }
+      ]
+    },
+    {
+      "Id": "crafted_gold_bracelet_gold_bracelet",
+      "DisplayName": "임세티",
+      "Completed": true,
+      "SalePrice": 5,
+      "AssetKey": "Items/crafted_gold_bracelet_gold_bracelet",
+      "EffectId": "item.crafted_gold_bracelet_gold_bracelet",
+      "EffectDescription": "고유 효과 미구현",
+      "Modifiers": [
+        {
+          "Stat": 1,
+          "Amount": 15
+        },
+        {
+          "Stat": 1,
+          "Amount": 15
+        }
+      ]
+    },
+    {
+      "Id": "crafted_gold_bracelet_bulletproof_vest",
+      "DisplayName": "레버넌트",
+      "Completed": true,
+      "SalePrice": 5,
+      "AssetKey": "Items/crafted_gold_bracelet_bulletproof_vest",
+      "EffectId": "item.crafted_gold_bracelet_bulletproof_vest",
+      "EffectDescription": "고유 효과 미구현",
+      "Modifiers": [
+        {
+          "Stat": 1,
+          "Amount": 15
+        },
+        {
+          "Stat": 2,
+          "Amount": 100
+        }
+      ]
+    },
+    {
+      "Id": "crafted_gold_bracelet_chain_armor",
+      "DisplayName": "요명월",
+      "Completed": true,
+      "SalePrice": 5,
+      "AssetKey": "Items/crafted_gold_bracelet_chain_armor",
+      "EffectId": "item.crafted_gold_bracelet_chain_armor",
+      "EffectDescription": "고유 효과 미구현",
+      "Modifiers": [
+        {
+          "Stat": 1,
+          "Amount": 15
+        },
+        {
+          "Stat": 3,
+          "Amount": 10
+        }
+      ]
+    },
+    {
+      "Id": "crafted_gold_bracelet_quiver",
+      "DisplayName": "텔루리안 타임피스",
+      "Completed": true,
+      "SalePrice": 5,
+      "AssetKey": "Items/crafted_gold_bracelet_quiver",
+      "EffectId": "item.crafted_gold_bracelet_quiver",
+      "EffectDescription": "고유 효과 미구현",
+      "Modifiers": [
+        {
+          "Stat": 1,
+          "Amount": 15
+        },
+        {
+          "Stat": 4,
+          "Amount": 0.1
+        }
+      ]
+    },
+    {
+      "Id": "crafted_gold_bracelet_electronic_parts",
+      "DisplayName": "천룡잠",
+      "Completed": true,
+      "SalePrice": 5,
+      "AssetKey": "Items/crafted_gold_bracelet_electronic_parts",
+      "EffectId": "item.crafted_gold_bracelet_electronic_parts",
+      "EffectDescription": "고유 효과 미구현",
+      "Modifiers": [
+        {
+          "Stat": 1,
+          "Amount": 15
+        },
+        {
+          "Stat": 5,
+          "Amount": 0.1
+        }
+      ]
+    },
+    {
+      "Id": "crafted_gold_bracelet_wire",
+      "DisplayName": "용의 비늘",
+      "Completed": true,
+      "SalePrice": 5,
+      "AssetKey": "Items/crafted_gold_bracelet_wire",
+      "EffectId": "item.crafted_gold_bracelet_wire",
+      "EffectDescription": "고유 효과 미구현",
+      "Modifiers": [
+        {
+          "Stat": 1,
+          "Amount": 15
+        },
+        {
+          "Stat": 6,
+          "Amount": 8
+        }
+      ]
+    },
+    {
+      "Id": "crafted_bulletproof_vest_bulletproof_vest",
+      "DisplayName": "미스릴 크롭",
+      "Completed": true,
+      "SalePrice": 5,
+      "AssetKey": "Items/crafted_bulletproof_vest_bulletproof_vest",
+      "EffectId": "item.crafted_bulletproof_vest_bulletproof_vest",
+      "EffectDescription": "고유 효과 미구현",
+      "Modifiers": [
+        {
+          "Stat": 2,
+          "Amount": 100
+        },
+        {
+          "Stat": 2,
+          "Amount": 100
+        }
+      ]
+    },
+    {
+      "Id": "crafted_bulletproof_vest_chain_armor",
+      "DisplayName": "배틀 슈트",
+      "Completed": true,
+      "SalePrice": 5,
+      "AssetKey": "Items/crafted_bulletproof_vest_chain_armor",
+      "EffectId": "item.crafted_bulletproof_vest_chain_armor",
+      "EffectDescription": "고유 효과 미구현",
+      "Modifiers": [
+        {
+          "Stat": 2,
+          "Amount": 100
+        },
+        {
+          "Stat": 3,
+          "Amount": 10
+        }
+      ]
+    },
+    {
+      "Id": "crafted_bulletproof_vest_quiver",
+      "DisplayName": "팬텀 자켓",
+      "Completed": true,
+      "SalePrice": 5,
+      "AssetKey": "Items/crafted_bulletproof_vest_quiver",
+      "EffectId": "item.crafted_bulletproof_vest_quiver",
+      "EffectDescription": "고유 효과 미구현",
+      "Modifiers": [
+        {
+          "Stat": 2,
+          "Amount": 100
+        },
+        {
+          "Stat": 4,
+          "Amount": 0.1
+        }
+      ]
+    },
+    {
+      "Id": "crafted_bulletproof_vest_electronic_parts",
+      "DisplayName": "타이탄 아머",
+      "Completed": true,
+      "SalePrice": 5,
+      "AssetKey": "Items/crafted_bulletproof_vest_electronic_parts",
+      "EffectId": "item.crafted_bulletproof_vest_electronic_parts",
+      "EffectDescription": "고유 효과 미구현",
+      "Modifiers": [
+        {
+          "Stat": 2,
+          "Amount": 100
+        },
+        {
+          "Stat": 5,
+          "Amount": 0.1
+        }
+      ]
+    },
+    {
+      "Id": "crafted_bulletproof_vest_wire",
+      "DisplayName": "유령 신부의 드레스",
+      "Completed": true,
+      "SalePrice": 5,
+      "AssetKey": "Items/crafted_bulletproof_vest_wire",
+      "EffectId": "item.crafted_bulletproof_vest_wire",
+      "EffectDescription": "고유 효과 미구현",
+      "Modifiers": [
+        {
+          "Stat": 2,
+          "Amount": 100
+        },
+        {
+          "Stat": 6,
+          "Amount": 8
+        }
+      ]
+    },
+    {
+      "Id": "crafted_chain_armor_chain_armor",
+      "DisplayName": "가디언 슈트",
+      "Completed": true,
+      "SalePrice": 5,
+      "AssetKey": "Items/crafted_chain_armor_chain_armor",
+      "EffectId": "item.crafted_chain_armor_chain_armor",
+      "EffectDescription": "고유 효과 미구현",
+      "Modifiers": [
+        {
+          "Stat": 3,
+          "Amount": 10
+        },
+        {
+          "Stat": 3,
+          "Amount": 10
+        }
+      ]
+    },
+    {
+      "Id": "crafted_chain_armor_quiver",
+      "DisplayName": "길리 슈트",
+      "Completed": true,
+      "SalePrice": 5,
+      "AssetKey": "Items/crafted_chain_armor_quiver",
+      "EffectId": "item.crafted_chain_armor_quiver",
+      "EffectDescription": "고유 효과 미구현",
+      "Modifiers": [
+        {
+          "Stat": 3,
+          "Amount": 10
+        },
+        {
+          "Stat": 4,
+          "Amount": 0.1
+        }
+      ]
+    },
+    {
+      "Id": "crafted_chain_armor_electronic_parts",
+      "DisplayName": "화령장",
+      "Completed": true,
+      "SalePrice": 5,
+      "AssetKey": "Items/crafted_chain_armor_electronic_parts",
+      "EffectId": "item.crafted_chain_armor_electronic_parts",
+      "EffectDescription": "고유 효과 미구현",
+      "Modifiers": [
+        {
+          "Stat": 3,
+          "Amount": 10
+        },
+        {
+          "Stat": 5,
+          "Amount": 0.1
+        }
+      ]
+    },
+    {
+      "Id": "crafted_chain_armor_wire",
+      "DisplayName": "슈팅스타의 자켓",
+      "Completed": true,
+      "SalePrice": 5,
+      "AssetKey": "Items/crafted_chain_armor_wire",
+      "EffectId": "item.crafted_chain_armor_wire",
+      "EffectDescription": "고유 효과 미구현",
+      "Modifiers": [
+        {
+          "Stat": 3,
+          "Amount": 10
+        },
+        {
+          "Stat": 6,
+          "Amount": 8
+        }
+      ]
+    },
+    {
+      "Id": "crafted_quiver_quiver",
+      "DisplayName": "살라딘의 화살통",
+      "Completed": true,
+      "SalePrice": 5,
+      "AssetKey": "Items/crafted_quiver_quiver",
+      "EffectId": "item.crafted_quiver_quiver",
+      "EffectDescription": "고유 효과 미구현",
+      "Modifiers": [
+        {
+          "Stat": 4,
+          "Amount": 0.1
+        },
+        {
+          "Stat": 4,
+          "Amount": 0.1
+        }
+      ]
+    },
+    {
+      "Id": "crafted_quiver_electronic_parts",
+      "DisplayName": "레가투스",
+      "Completed": true,
+      "SalePrice": 5,
+      "AssetKey": "Items/crafted_quiver_electronic_parts",
+      "EffectId": "item.crafted_quiver_electronic_parts",
+      "EffectDescription": "고유 효과 미구현",
+      "Modifiers": [
+        {
+          "Stat": 4,
+          "Amount": 0.1
+        },
+        {
+          "Stat": 5,
+          "Amount": 0.1
+        }
+      ]
+    },
+    {
+      "Id": "crafted_quiver_wire",
+      "DisplayName": "블래스터 헬멧",
+      "Completed": true,
+      "SalePrice": 5,
+      "AssetKey": "Items/crafted_quiver_wire",
+      "EffectId": "item.crafted_quiver_wire",
+      "EffectDescription": "고유 효과 미구현",
+      "Modifiers": [
+        {
+          "Stat": 4,
+          "Amount": 0.1
+        },
+        {
+          "Stat": 6,
+          "Amount": 8
+        }
+      ]
+    },
+    {
+      "Id": "crafted_electronic_parts_electronic_parts",
+      "DisplayName": "운명의 주사위",
+      "Completed": true,
+      "SalePrice": 5,
+      "AssetKey": "Items/crafted_electronic_parts_electronic_parts",
+      "EffectId": "item.crafted_electronic_parts_electronic_parts",
+      "EffectDescription": "고유 효과 미구현",
+      "Modifiers": [
+        {
+          "Stat": 5,
+          "Amount": 0.1
+        },
+        {
+          "Stat": 5,
+          "Amount": 0.1
+        }
+      ]
+    },
+    {
+      "Id": "crafted_electronic_parts_wire",
+      "DisplayName": "프시케의 칼날",
+      "Completed": true,
+      "SalePrice": 5,
+      "AssetKey": "Items/crafted_electronic_parts_wire",
+      "EffectId": "item.crafted_electronic_parts_wire",
+      "EffectDescription": "고유 효과 미구현",
+      "Modifiers": [
+        {
+          "Stat": 5,
+          "Amount": 0.1
+        },
+        {
+          "Stat": 6,
+          "Amount": 8
+        }
+      ]
+    },
+    {
+      "Id": "crafted_wire_wire",
+      "DisplayName": "아이언 메이든",
+      "Completed": true,
+      "SalePrice": 5,
+      "AssetKey": "Items/crafted_wire_wire",
+      "EffectId": "item.crafted_wire_wire",
+      "EffectDescription": "고유 효과 미구현",
+      "Modifiers": [
+        {
+          "Stat": 6,
+          "Amount": 8
+        },
+        {
+          "Stat": 6,
+          "Amount": 8
+        }
+      ]
+    }
+  ],
+  "Recipes": [
+    {
+      "First": "sheath",
+      "Second": "sheath",
+      "Result": "crafted_sheath_sheath"
+    },
+    {
+      "First": "sheath",
+      "Second": "gold_bracelet",
+      "Result": "crafted_sheath_gold_bracelet"
+    },
+    {
+      "First": "sheath",
+      "Second": "bulletproof_vest",
+      "Result": "crafted_sheath_bulletproof_vest"
+    },
+    {
+      "First": "sheath",
+      "Second": "chain_armor",
+      "Result": "crafted_sheath_chain_armor"
+    },
+    {
+      "First": "sheath",
+      "Second": "quiver",
+      "Result": "crafted_sheath_quiver"
+    },
+    {
+      "First": "sheath",
+      "Second": "electronic_parts",
+      "Result": "crafted_sheath_electronic_parts"
+    },
+    {
+      "First": "sheath",
+      "Second": "wire",
+      "Result": "crafted_sheath_wire"
+    },
+    {
+      "First": "gold_bracelet",
+      "Second": "gold_bracelet",
+      "Result": "crafted_gold_bracelet_gold_bracelet"
+    },
+    {
+      "First": "gold_bracelet",
+      "Second": "bulletproof_vest",
+      "Result": "crafted_gold_bracelet_bulletproof_vest"
+    },
+    {
+      "First": "gold_bracelet",
+      "Second": "chain_armor",
+      "Result": "crafted_gold_bracelet_chain_armor"
+    },
+    {
+      "First": "gold_bracelet",
+      "Second": "quiver",
+      "Result": "crafted_gold_bracelet_quiver"
+    },
+    {
+      "First": "gold_bracelet",
+      "Second": "electronic_parts",
+      "Result": "crafted_gold_bracelet_electronic_parts"
+    },
+    {
+      "First": "gold_bracelet",
+      "Second": "wire",
+      "Result": "crafted_gold_bracelet_wire"
+    },
+    {
+      "First": "bulletproof_vest",
+      "Second": "bulletproof_vest",
+      "Result": "crafted_bulletproof_vest_bulletproof_vest"
+    },
+    {
+      "First": "bulletproof_vest",
+      "Second": "chain_armor",
+      "Result": "crafted_bulletproof_vest_chain_armor"
+    },
+    {
+      "First": "bulletproof_vest",
+      "Second": "quiver",
+      "Result": "crafted_bulletproof_vest_quiver"
+    },
+    {
+      "First": "bulletproof_vest",
+      "Second": "electronic_parts",
+      "Result": "crafted_bulletproof_vest_electronic_parts"
+    },
+    {
+      "First": "bulletproof_vest",
+      "Second": "wire",
+      "Result": "crafted_bulletproof_vest_wire"
+    },
+    {
+      "First": "chain_armor",
+      "Second": "chain_armor",
+      "Result": "crafted_chain_armor_chain_armor"
+    },
+    {
+      "First": "chain_armor",
+      "Second": "quiver",
+      "Result": "crafted_chain_armor_quiver"
+    },
+    {
+      "First": "chain_armor",
+      "Second": "electronic_parts",
+      "Result": "crafted_chain_armor_electronic_parts"
+    },
+    {
+      "First": "chain_armor",
+      "Second": "wire",
+      "Result": "crafted_chain_armor_wire"
+    },
+    {
+      "First": "quiver",
+      "Second": "quiver",
+      "Result": "crafted_quiver_quiver"
+    },
+    {
+      "First": "quiver",
+      "Second": "electronic_parts",
+      "Result": "crafted_quiver_electronic_parts"
+    },
+    {
+      "First": "quiver",
+      "Second": "wire",
+      "Result": "crafted_quiver_wire"
+    },
+    {
+      "First": "electronic_parts",
+      "Second": "electronic_parts",
+      "Result": "crafted_electronic_parts_electronic_parts"
+    },
+    {
+      "First": "electronic_parts",
+      "Second": "wire",
+      "Result": "crafted_electronic_parts_wire"
+    },
+    {
+      "First": "wire",
+      "Second": "wire",
+      "Result": "crafted_wire_wire"
+    }
+  ]
+}

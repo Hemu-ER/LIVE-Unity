@@ -261,3 +261,11 @@ be free of occupants/reservations; units are not solid corner walls. Dash uses t
 steps. Orthogonal and diagonal travel both take `1 / MoveSpeed` seconds, with interpolation.
 Rows/columns, all-unit effects and authored skill coefficients are unchanged.
 See `DISTANCE_VALIDATION.md` for the audit and regression results.
+
+
+## Item foundation
+
+Seven base and 28 completed item definitions, persistent inventory/equipment, crafting,
+Prep-only commands and derived combat stats are implemented. See `ITEM_SYSTEM.md` for
+click controls, stat assumptions, atomic sale/merge rules, validation and effect extension
+points. Unique completed-item combat effects are intentionally pending.

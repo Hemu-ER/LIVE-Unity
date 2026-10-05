@@ -16,7 +16,7 @@ namespace LIVE.Prototype
     }
 
     // Command boundary: UI requests actions here; only this model mutates persistent game state.
-    public sealed class PrototypeRunModel
+    public sealed partial class PrototypeRunModel
     {
         private readonly PrototypeGameData data;
         private readonly List<PrototypeRoundRecord> history = new List<PrototypeRoundRecord>();
@@ -43,6 +43,7 @@ namespace LIVE.Prototype
             Round = 1; history.Clear();
             Pool = new PrototypeSharedPool(data);
             Shop = new PrototypeShop(data, Pool, random);
+            Items = new PrototypeItemInventory();
             Player = new PrototypePlayerState(data.Rules.StartingCredits, data.Rules.BenchSize);
             var starters = new List<PrototypeUnitDefinition>();
             foreach (var unit in data.Units) if (unit.Playable && unit.Cost == 1 && Pool.Available(unit.Id) > 0) starters.Add(unit);
@@ -119,10 +120,11 @@ namespace LIVE.Prototype
             int bench = Player.EmptyBench(), cost = data.Definition(id).Cost;
             if (bench < 0) { LastMessage = "Bench is full (8/8)."; return false; }
             if (Player.Credits < cost) { LastMessage = "Not enough Credits."; return false; }
+            if (!CanReturnMergeEquipment(id)) return ItemFailure("Item inventory cannot hold equipment from merged units.");
             Shop.Consume(slot);
             Player.Credits -= cost;
             Player.AddToBench(id, bench);
-            Player.MergeAll();
+            Player.MergeAll(unit => Items.ReturnUnit(unit.InstanceId));
             LastMessage = "Purchased " + data.Definition(id).DisplayName;
             Revision++;
             return true;
@@ -165,6 +167,7 @@ namespace LIVE.Prototype
             if (!CanPrepare()) return false;
             var unit = Player.Find(id);
             if (unit == null) { LastMessage = "Select an owned unit."; return false; }
+            if (!Items.ReturnUnit(id)) return ItemFailure("Not enough item inventory space; unit sale cancelled.");
             int price = PrototypeEconomy.SalePrice(data.Definition(unit.DefinitionId).Cost, unit.Stars);
             Pool.Return(unit.DefinitionId, PrototypeEconomy.OriginalCopies(unit.Stars));
             Player.Remove(unit);
